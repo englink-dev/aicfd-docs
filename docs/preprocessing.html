@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전처리 파이프라인</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css">
+<style>
+:root {
+  --bg:#fbfbf9; --fg:#1c1b19; --muted:#6b6862; --line:#e2ded6; --card:#fff;
+  --accent:#9a5b2e; --soft:#f2e7dc; --code:#f5f2ec;
+  --note:#eef3f7; --note-line:#6f93ad; --warn:#fdf1e3; --warn-line:#c07a2c;
+  --sidebar:264px; --maxw:1800px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#16151a; --fg:#e6e3dd; --muted:#9a958c; --line:#2d2b33; --card:#1d1c22;
+  --accent:#e0a06a; --soft:#2a2119; --code:#201f26;
+  --note:#1b232a; --note-line:#5b7e97; --warn:#2a2119; --warn-line:#b8823f;}}
+:root[data-theme=dark]{
+  --bg:#16151a; --fg:#e6e3dd; --muted:#9a958c; --line:#2d2b33; --card:#1d1c22;
+  --accent:#e0a06a; --soft:#2a2119; --code:#201f26;
+  --note:#1b232a; --note-line:#5b7e97; --warn:#2a2119; --warn-line:#b8823f;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1.2rem}
+body{margin:0;background:var(--bg);color:var(--fg);font-size:16px;line-height:1.72;letter-spacing:-.003em;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Pretendard','Noto Sans KR','Apple SD Gothic Neo',sans-serif}
+.layout{display:flex;max-width:var(--maxw);margin:0 auto}
+#sidebar{position:sticky;top:0;flex:0 0 var(--sidebar);width:var(--sidebar);height:100vh;overflow-y:auto;
+  overscroll-behavior:contain;border-right:1px solid var(--line);padding:3rem .75rem 3rem 1rem;background:var(--bg)}
+.brand{font-weight:700;font-size:1rem}
+.brand-sub{color:var(--muted);font-size:.76rem;margin-bottom:.9rem}
+#pagenav{display:flex;flex-wrap:wrap;gap:.25rem;margin-bottom:1rem;padding-bottom:.9rem;border-bottom:1px solid var(--line)}
+#pagenav a{font-size:.74rem;text-decoration:none;color:var(--muted);border:1px solid var(--line);
+  border-radius:99px;padding:.12rem .5rem}
+#pagenav a:hover{color:var(--accent);border-color:var(--accent)}
+#pagenav a.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+#toc{display:flex;flex-direction:column}
+#toc a{color:var(--muted);text-decoration:none;font-size:.81rem;line-height:1.45;padding:.2rem .45rem;
+  border-radius:6px;border-left:2px solid transparent}
+#toc a:hover{color:var(--fg);background:var(--soft)}
+#toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+#toc a.toc-l1{font-weight:650;color:var(--fg);font-size:.85rem;margin-top:.5rem}
+#toc a.toc-l2{padding-left:.9rem}
+#toc a.toc-l3{padding-left:1.6rem;font-size:.77rem}
+main{flex:1 1 auto;min-width:0;padding:1.9rem 1.6rem 5rem}
+main>h1:first-child{margin-top:0}
+h1,h2,h3,h4{line-height:1.3;letter-spacing:-.015em;scroll-margin-top:1.2rem}
+h1{font-size:1.85rem;margin:2.8rem 0 .9rem;padding-bottom:.45rem;border-bottom:2px solid var(--accent)}
+h2{font-size:1.32rem;margin:2.4rem 0 .75rem}
+h3{font-size:1.05rem;margin:1.7rem 0 .5rem}
+.headerlink{color:var(--line);text-decoration:none;margin-left:.35rem;font-weight:400;opacity:0;transition:opacity .12s}
+h1:hover .headerlink,h2:hover .headerlink,h3:hover .headerlink{opacity:1}
+ul,ol{padding-left:1.3rem}li{margin:.2rem 0}
+a{color:var(--accent);text-underline-offset:2px}
+hr{border:0;border-top:1px solid var(--line);margin:2.6rem 0}
+code{font-family:'JetBrains Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:.85em;
+  background:var(--code);padding:.1em .35em;border-radius:4px;border:1px solid var(--line);white-space:nowrap}
+pre{background:var(--code);border:1px solid var(--line);border-radius:9px;padding:.85rem 1rem;
+  overflow-x:auto;line-height:1.55;font-size:.84rem}
+pre code{background:none;border:0;padding:0;font-size:1em;white-space:pre}
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:9px}
+table{border-collapse:collapse;width:100%;font-size:.8rem;background:var(--card)}
+th,td{padding:.4rem .55rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--code);font-weight:650}
+tr:last-child td{border-bottom:0}
+td code,th code{white-space:normal}
+.admonition{margin:1.1rem 0;padding:.65rem .9rem;border-radius:0 8px 8px 0;border-left:3px solid var(--note-line);
+  background:var(--note);font-size:.93rem}
+.admonition-title{font-weight:650;margin:0 0 .25rem;font-size:.85rem;letter-spacing:.02em}
+.admonition>:last-child{margin-bottom:0}
+.admonition.warning{border-left-color:var(--warn-line);background:var(--warn)}
+.admonition.seealso{border-left-color:var(--accent);background:var(--soft)}
+.katex-display{margin:.9rem 0;padding:.65rem .85rem;overflow-x:auto;overflow-y:hidden;background:var(--code);
+  border:1px solid var(--line);border-radius:9px}
+.katex{font-size:1.06em}
+p .katex,td .katex,li .katex{font-size:1.02em}
+.katex-display>.katex{font-size:1.12em}
+#menubtn{position:fixed;top:.5rem;left:.5rem;z-index:40;width:2.15rem;height:2.15rem;border-radius:8px;
+  border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:.95rem;cursor:pointer}
+#menubtn:hover{color:var(--accent);border-color:var(--accent)}
+body.collapsed #sidebar{display:none}
+body.collapsed main{padding-left:3.2rem}
+.controls{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:20}
+.controls button{width:2.5rem;height:2.5rem;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--fg);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.controls button:hover{border-color:var(--accent);color:var(--accent)}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:30}
+@media (max-width:950px){
+  .layout{display:block}
+  #sidebar{position:fixed;z-index:25;left:0;top:0;width:82vw;max-width:320px;transform:translateX(-102%);
+    transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.2)}
+  body.collapsed #sidebar{display:block}
+  #sidebar.open{transform:none}
+  main{padding:1.5rem 1.1rem 5rem 3.2rem}
+  h1{font-size:1.55rem}h2{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<button id="menubtn" title="목차 접기/펼치기 (Ctrl+\)">&#9776;</button>
+<div class="layout">
+<nav id="sidebar">
+  <div class="brand">aicfd</div>
+  <div class="brand-sub">CFD 예측 모델 5종 문서</div>
+  <div id="pagenav"><a class="" href="../index.html">개요</a>
+<a class="" href="../docs/metrics.html">Metric</a>
+<a class="cur" href="#">전처리</a>
+<a class="" href="../docs/nondim.html">nondim</a>
+<a class="" href="../docs/design-notes.html">설계 근거</a>
+<a class="" href="../docs/runbook.html">운영 절차</a>
+<a class="" href="../docs/troubleshooting.html">장비 이슈</a>
+<a class="" href="../docs/validation.html">실측</a>
+<a class="" href="../docs/history.html">이력</a></div>
+  <div id="toc"><a class="toc-l1" href="#_1" data-target="_1">전처리 파이프라인</a>
+<a class="toc-l2" href="#grid" data-target="grid">grid 모델</a>
+<a class="toc-l3" href="#interpolation-guard" data-target="interpolation-guard">보간 안전장치</a>
+<a class="toc-l3" href="#clip" data-target="clip">O(1) clip</a>
+<a class="toc-l3" href="#minmax" data-target="minmax">양자화 범위</a>
+<a class="toc-l3" href="#fluid-zone" data-target="fluid-zone">fluid 영역 정의</a>
+<a class="toc-l2" href="#mesh" data-target="mesh">mesh 모델</a>
+<a class="toc-l3" href="#section-area" data-target="section-area">vertex 마다의 단면적</a></div>
+</nav>
+<main><h1 id="_1">전처리 파이프라인<a class="headerlink" href="#_1" title="Permanent link">#</a></h1>
+<p>CFD 해석 결과를 학습용 h5 로 바꾸는 과정이다. grid 모델과 mesh 모델은 거치는 단계가 달라서 따로 본다.</p>
+<h2 id="grid">grid 모델<a class="headerlink" href="#grid" title="Permanent link">#</a></h2>
+<pre><code>해석 결과 점군(.ip) → RBF 보간 → 정규 격자 fp32 → O(1) clip → uint16 양자화 → h5
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>코드</th>
+<th>하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>보간</td>
+<td><code>scripts/preprocess/rbfi.py</code>, <code>pp_utils.py</code></td>
+<td>점군을 격자로 옮긴다. 국소 RBF, 이웃 150개. 좌표는 <strong>격자 단위</strong>로 넘긴다 (<a href="design-notes.html#rbf-units">이유</a>)</td>
+</tr>
+<tr>
+<td>마스크</td>
+<td><code>section_utils.py</code> 또는 <code>preprocess.py</code></td>
+<td>fluid 영역을 정한다</td>
+</tr>
+<tr>
+<td>clip</td>
+<td><code>compressor.py</code></td>
+<td>물리 원리 기준 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> 크기를 기준으로 임계값을 정해 극단값만 자른다</td>
+</tr>
+<tr>
+<td>양자화</td>
+<td><code>compressor.py</code></td>
+<td>필드별 고정 범위로 uint16 변환</td>
+</tr>
+</tbody>
+</table></div>
+<p>pixel space 모델(aicfd-building-pixel, aicfd-nasal-pixel)은 이 경로를 타지 않는다. 해석 결과를 이미지로 렌더해서
+바이트를 그대로 저장하기 때문에 clip 도, 양자화 범위를 정하는 일도 없다.</p>
+<h3 id="interpolation-guard">보간 안전장치<a class="headerlink" href="#interpolation-guard" title="Permanent link">#</a></h3>
+<p>국소 RBF 는 도메인 경계에서 물리적으로 말이 안 되는 overshoot 를 만들 수 있다. 보간 단계가 이걸 직접 잡는데,
+<strong>필드마다 따로 판정해서 따로 되돌린다.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>판정</th>
+<th>되돌림</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>velocity</td>
+<td>예측 벡터 크기가 이웃 벡터 크기 최댓값의 2배 초과</td>
+<td>velocity 채널만 최근접값</td>
+</tr>
+<tr>
+<td>스칼라(pressure, k, temperature)</td>
+<td>예측 절댓값이 이웃 절댓값 최댓값의 2배 초과</td>
+<td>해당 채널만 최근접값</td>
+</tr>
+<tr>
+<td>NaN·∞</td>
+<td>값이 NaN 이거나 ∞</td>
+<td>행 전체 최근접값</td>
+</tr>
+</tbody>
+</table></div>
+<p>여기서 중요한 것은 판정을 <strong>필드마다 따로</strong>, 그리고 <strong>값의 크기로</strong> 한다는 점이다. 한 필드에서 이상값이 나와도
+다른 필드는 그대로 두고, 값이 어느 구간에 있는지가 아니라 절댓값이나 벡터 크기가 얼마인지를 본다. 왜 그렇게 했는지는
+<a href="design-notes.html#interpolation-guard">보간 안전장치 설계</a> 에 있다.</p>
+<p>마지막에 NaN·∞ 검사를 한 번 더 하기 때문에, 깨진 h5 가 완료로 기록되는 일은 없다.</p>
+<h3 id="clip">O(1) clip<a class="headerlink" href="#clip" title="Permanent link">#</a></h3>
+<p>보간 안전장치를 지나고도 남아 있는 극단값은 대부분 실제로 일어난 현상이다 — 고압부, 고전단, 제트. 그래서 자르면
+그만큼 정보가 없어진다. 그래도 임계값을 두는 이유는, 그런 값이 몇 개만 있어도 L2 계열 지표와 정규화에
+쓰는 표준편차가 크게 달라지기 때문이다.
+임계값을 어디에 두느냐는 두 모델이 다르다.</p>
+<h4 id="clip-building">aicfd-building-physical — 양자화 범위가 곧 임계값</h4>
+<p>이 모델은 데이터가 커서 uint16 <a href="#minmax">양자화</a> 가 선택 사항이 아니다. 양자화는 저장 범위를
+정해야 하고, 범위를 정하면 그 바깥은 자를 수밖에 없다. 그래서 여기서 clip 은 별도의 정제 단계가 아니라
+양자화의 일부이고, 임계값과 저장 범위가 같은 숫자다.</p>
+<p>범위는 필드별 최소·최대와 평균, quantile 을 놓고 사람이 정한다. velocity 는 성분별 ±150 m/s,
+pressure 는 −12500 ~ 3500 Pa, k 는 0 ~ 1500 m²/s² 다. 최대 풍속이 44 m/s 이므로 velocity 임계값은 그 3.4배,
+pressure 임계값은 같은 풍속의 동압(1186 Pa)의 열 배쯤 된다. 저장 범위를 넉넉히 잡아 두고
+그 바깥으로 나가는 값만 걸러낸다.</p>
+<h4 id="clip-indoor">aicfd-indoor-physical — 데이터 분포에서 뽑은 임계값</h4>
+<p>풍속이 조건 입력이 아니므로 <strong>절대값</strong>을 기준으로 자른다. 임계값도 사람이 눈대중으로 정한 숫자가 아니라
+데이터 분포에서 계산한다. 규칙은 두 필드 공통으로 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">99.9</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord hangul_fallback">판정값</span></span><span class="mclose">)</span></span></span></span> 이다. 판정값의 p99.9 를 구한 다음 거기에
+1.6 을 곱한 값을 임계값으로 쓴다. 아래 표의 숫자들은 이 규칙으로 한 번 정해서 코드에 고정해 둔 값이고,
+실제 전처리는 샘플마다 이 고정 임계값과 비교한다. 이쪽은 <strong>잘려 나가는 값이 훨씬 적다</strong>.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>판정값</th>
+<th>clip</th>
+<th>상수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>velocity</td>
+<td>성분 절댓값 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.0359em;">v</span><span class="mord">∣</span></span></span></span></td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">v</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.2222em;">V</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">+</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.2222em;">V</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span></td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.2222em;">V</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">2.6292</span></span></span></span> m/s (0.0110% 화소)</td>
+</tr>
+<tr>
+<td>temperature</td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mord">∣</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">ref</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mord">∣</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">50.5915</span></span></span></span> °C (0.0335% 화소)</td>
+</tr>
+</tbody>
+</table></div>
+<p>제대로 돌아가고 있다면 잘려 나가는 화소는 필드당 0.01~0.05% 다. 이보다 많이 잘린다면 임계값이 잘못된 것이 아니라
+보간 단계에서 아티팩트가 남았다고 보고 그쪽을 확인한다.</p>
+<p>clip 은 압축 직전에 샘플 단위로 판정하고, 저장되는 값은 여전히 물리 단위다.
+velocity 는 성분별로 자른다. 벡터 크기를 잘라 버리면 방향까지 같이 바뀌기 때문이다.</p>
+<p>mesh 모델은 어느 단계에서도 자르지 않는다. 저장된 WSS 도 학습 target 도 해석 결과 그대로다.
+분포의 꼬리를 확인해 보니 잘라낼 만한 뾰족한 값이 없었기 때문이다
+(<a href="nondim.html#wss-clip">WSS nondimensionalization — 꼬리를 자르지 않는 이유</a>).</p>
+<h3 id="minmax">양자화 범위<a class="headerlink" href="#minmax" title="Permanent link">#</a></h3>
+<p>clip 을 지난 값은 uint16 으로 양자화해 저장한다. 이때 필드마다 저장 범위를 하나씩 정해 두는데,
+이 범위가 나중에 그대로 dequantization 계수가 된다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>필드</th>
+<th>범위</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aicfd-indoor-physical</td>
+<td>velocity</td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">2.7</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">2.7</span><span class="mclose">]</span></span></span></span> m/s</td>
+</tr>
+<tr>
+<td></td>
+<td>temperature</td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">95</span><span class="mclose">]</span></span></span></span> °C</td>
+</tr>
+<tr>
+<td>aicfd-building-physical</td>
+<td>velocity</td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">150</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">150</span><span class="mclose">]</span></span></span></span> m/s</td>
+</tr>
+<tr>
+<td></td>
+<td>pressure</td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">12500</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">3500</span><span class="mclose">]</span></span></span></span> Pa</td>
+</tr>
+<tr>
+<td></td>
+<td>k</td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1500</span><span class="mclose">]</span></span></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>이 범위가 있어야 uint16 저장값을 물리값으로 되돌릴 수 있다. 같은 uint16 값이라도 범위가 다르면 다른
+물리값으로 읽힌다. 그래서 범위는 데이터셋, 그리고 그 데이터로 학습한 checkpoint 와 늘 같이 다녀야 하고, 학습에 쓴 범위는 각 run 의
+얼려둔 설정에 남아 있다.</p>
+<p>aicfd-building-physical 의 범위는 보간 안전장치가 없던 시절 기준이라 실제 분포보다 넉넉하다. 범위를 좁히면
+uint16 한 단계가 나타내는 물리값 간격이 작아져서 양자화 오차가 줄어든다. 다만 범위를 바꾸면 재학습까지 따라오므로, 절차는 <a href="runbook.html#building-regen">운영 절차</a> 를 따른다.</p>
+<h3 id="fluid-zone">fluid 영역 정의<a class="headerlink" href="#fluid-zone" title="Permanent link">#</a></h3>
+<p>fluid 영역을 정하는 방식은 모델마다 다르다. 형상과 해석 영역의 포함 관계가 서로 반대라서 그렇다.
+building 은 해석 영역인 상자 안에 건물이 장애물로 들어 있고, indoor 는 반대로 벽이 해석 영역을 바깥에서 둘러싼다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>정의</th>
+<th>포함 관계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aicfd-building-physical, aicfd-building-pixel</td>
+<td><code>domain_mask = 255 − geo_mask</code>, <code>geo_mask</code> 는 z 슬라이스별 obj 단면 래스터</td>
+<td>obj ⊂ 해석 영역 (풍동 상자 안의 장애물)</td>
+</tr>
+<tr>
+<td>aicfd-indoor-physical</td>
+<td>obj 그룹별 단면 래스터의 여집합 ∩ CFD 점군 bounding box</td>
+<td>obj ⊃ 해석 영역 (벽 두께를 가진 방 형상이 유체를 감싼다)</td>
+</tr>
+</tbody>
+</table></div>
+<p>indoor 는 단면 면적이 <code>ROOM_FACE_AREA</code>(3.0 m²)를 넘는 면을 방의 벽으로 보고 제외한다. 가구는 커야 1.3 m² 이고
+방 단면은 12.03 m² 다. 두 값이 열 배 가까이 떨어져 있어서 그 사이 어디에 임계값을 두어도 결과가 같다.</p>
+<p>설계 근거와 검토된 대안은 <a href="design-notes.html#fluid-zone">fluid 영역 정의</a> 참고.</p>
+<h4 id="fluid-criterion">fluid 판정 기준<a class="headerlink" href="#fluid-criterion" title="Permanent link">#</a></h4>
+<p>grid 모델에서 fluid 판정은 <strong><code>domain_mask != 0</code></strong> 이다. 반투명(안티에일리어싱) 경계 화소도 해석 영역에 포함된다.
+metric 의 <code>dom_flag</code> 정의(<code>.bool()</code>)와 같은 기준이다.</p>
+<p>예외는 <code>nondim</code> 통계 집계로, 일부 스크립트가 <code>==255</code> 를 쓴다. 두 기준의 통계 차이는 무시할 수준이다 —
+안티에일리어싱은 값을 0 쪽으로만 당기므로 상단 꼬리를 건드리지 않는다.</p>
+<h4 id="antialiasing">안티에일리어싱<a class="headerlink" href="#antialiasing" title="Permanent link">#</a></h4>
+<p>두 building 계열과 indoor 계열 모두 마스크가 안티에일리어싱돼 있다. 다만 <strong>슬라이스 하나만 보고 판단하면 안 된다.</strong></p>
+<p>렌더러가 축정렬 경계를 화소에 딱 맞춰 스냅하기 때문이다. 그래서 형상이 없는 z 는 값이 한 종류뿐이고,
+축정렬 벽만 있는 z 는 0 과 255 두 종류만 나온다. 중간값은 사선이나 곡면이 있는 z 에서만 생긴다.</p>
+<p>경계 화소의 값은 커버리지만큼 감쇠돼 있어 물리값이 아니다. 자세한 결과는
+<a href="../index.html#repo-deltas">모델별 차이 — aicfd-indoor-physical</a> 의 경고를 참고.</p>
+<h2 id="mesh">mesh 모델<a class="headerlink" href="#mesh" title="Permanent link">#</a></h2>
+<p>aifem-nasal-physical 은 격자화 단계가 없다. 해석 결과의 삼각형 표면 mesh 와 면 중심 WSS 를 그대로 h5 에 담고,
+전처리가 벽면 mesh 만으로 cavity 부피를 계산해 <code>volume</code> 으로 함께 저장한다(divergence theorem, 경계 루프 캡).</p>
+<p>담기 전에 <strong>좌표가 같은 노드를 합친다</strong>. CGNS 는 표면을 한 덩어리로 내보내면서도 패치 이음매의 노드를
+두 번 적어 두는데(케이스당 1.7% 남짓), 그대로 쓰면 벽면이 위상적으로 여러 조각이 된다. 그러면 Laplacian 이 조각마다
+끊겨 확산이 이음매를 넘지 못하고, 부피 계산도 이음매를 개구부로 보고 캡을 씌운다. 합치고 나면 전 케이스가 한 덩어리가
+되고 경계 루프는 콧구멍과 인두만 남는다(3~4개). 면 데이터는 손대지 않으므로 WSS·면적은 그대로다.</p>
+<h3 id="section-area">vertex 마다의 단면적<a class="headerlink" href="#section-area" title="Permanent link">#</a></h3>
+<p>WSS 는 국소 유속이 정하고, 국소 유속은 유량을 통로 단면적으로 나눈 값이다. 그런데 단면적은 한 점에서
+볼 수 있는 값이 아니다. 벽 건너편까지 봐야 나오기 때문에, 벽면을 따라 확산하는 net 은 이 값을 스스로 만들지
+못한다. 그래서 전처리가 미리 계산해 vertex 마다 스칼라 하나씩 붙여 준다.</p>
+<p>문제는 어느 면으로 자르느냐다. 유량을 재려면 자르는 면이 유속을 가로질러야 하는데, 비강은 콧구멍에서 위로
+올라갔다가 비인두에서 뒤로 눕고 다시 아래로 꺾인다. 콧구멍과 하인두의 평균 유속 방향이 157도 벌어져 있어서,
+축 하나를 고정해 놓고 자르면 한쪽에서 맞을 때 다른 쪽에서 어긋난다.</p>
+<p>중심선을 긋고 그 접선에 수직인 평면으로 자르는 방법도 통하지 않는다. 그 평면이 유속에 수직인 곳은 중심선이
+지나는 한 점뿐이고, 통로가 휘면 그 점에서 멀어질수록 면이 유속과 비스듬해진다. 비스듬하게 자른 단면은 실제보다
+넓게 나온다. <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">θ</span></span></span></span> 를 통로 진행방향과 절단면 법선 사이의 각이라 하면</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">A</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0278em;">θ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.0463em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">cos</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">θ</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>이므로, 면을 길이방향에 가깝게 눕힐수록 값이 커진다.</p>
+<p>그래서 평면으로 자르는 대신 cavity 안에서 라플라스 방정식을 푼다.</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0585em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord">∇</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span><span class="mord mathnormal">φ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></span>
+<p>콧구멍에서 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">φ</span></span></span></span> 를 0, 인두에서 1 로 두고, 벽으로는 유량이 빠져나가지 않게 한다. 퍼텐셜 유동에서
+속도는 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord">∇</span><span class="mord mathnormal">φ</span></span></span></span> 이고 등위면 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">φ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 는 정의상 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord">∇</span><span class="mord mathnormal">φ</span></span></span></span> 에 수직이므로, 등위면은 한 점이 아니라 면 위 모든
+점에서 유속을 가로지른다. 평면에서 생기던 각도 오차가 아예 생기지 않는다.</p>
+<p>cavity 는 벽면만으로 만든다. 벽면에 뚫린 곳이 콧구멍 둘과 인두 하나뿐이라, 셋을 centroid fan 으로 막으면
+닫힌 표면이 되고 그 안쪽을 채우면 공기가 차지하는 영역이 나온다.</p>
+<p>넓이는 복셀 수를 세서 구하지 않는다. 격자에 비스듬히 누운 단면은 실제 넓이보다 복셀이 많이 걸리기 때문이다.
+대신 얇은 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">φ</span></span></span></span> 구간에서 성립하는 coarea 관계를 쓴다.</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:2.2222em;vertical-align:-0.8622em;"></span><span class="mop op-symbol large-op" style="margin-right:0.4445em;position:relative;top:-0.0011em;">∫</span><span class="mopen">∣</span><span class="mord">∇</span><span class="mord mathnormal">φ</span><span class="mclose">∣</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.2222em;vertical-align:-0.8622em;"></span><span class="mop op-symbol large-op" style="margin-right:0.4445em;position:relative;top:-0.0011em;">∫</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">A</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span></span>
+<p>구간 폭으로 나누면 그 구간에 든 단면의 넓이가 나온다. 식에 격자 방향이 들어가지 않으므로 단면이 어떻게
+누워 있든 같은 기준으로 재진다.</p>
+<p>한 등위면이 통로 하나만 지나는 것은 아니다. 같은 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 에 좌비강과 우비강이 함께 걸리고, 갑개가 가른
+비도들과 그 자리에 열린 부비동 입구도 같이 걸린다. 이 조각들의 넓이를 더하면 어느 통로의 단면적도 아닌 값이
+되므로, 조각마다 따로 재서 그 조각에 닿는 vertex 에만 준다.</p>
+<p>조각은 등위면 자신의 연결성으로 가른다. <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">φ</span></span></span></span> 구간으로 가르면 안 되는데, 구간에는 두께가 있어서 한
+단면이 그 안에서 끊기면 여러 조각으로 쪼개지기 때문이다. 그래서 같은 조각에 닿은 vertex 들은 같은 값을 받고,
+같은 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 라도 비중격 건너편은 다른 조각이라 다른 값을 받는다.</p>
+<p>나머지는 학습할 때 Dataset 이 처리한다.</p>
+<ol>
+<li>좌표 정규화</li>
+<li>기하 연산자 계산 — 라플라시안, vertex 질량, eigenpair, gradient 연산자 (<code>(verts, faces)</code> 해시 키로 디스크 캐시)</li>
+<li>HKS 입력 특징 계산 (디스크 캐시)</li>
+<li><code>physical_to_nondim</code> 으로 면 WSS 를 학습 공간으로 — 물리 유도 지수 둘과 해석 설정값에서 나온 크기 계수를 쓴다 (<a href="nondim.html#wss">nondim</a>)</li>
+<li>면적가중으로 vertex 에 투영 (꼬리는 자르지 않는다). 물리 단위 WSS 도 같은 방식으로 투영해 <code>target_wss</code> 로 함께 들고 간다</li>
+</ol></main>
+</div>
+<div class="controls">
+  <button id="themebtn" title="라이트/다크">&#9681;</button>
+  <button id="topbtn" title="맨 위로">&#8593;</button>
+</div>
+<script>
+(function(){
+ var links=[].slice.call(document.querySelectorAll('#toc a'));
+ var heads=links.map(function(a){return document.getElementById(a.dataset.target)}).filter(Boolean);
+ var sidebar=document.getElementById('sidebar'),tick=false;
+ function sync(){
+  var y=scrollY+90,cur=null;
+  for(var i=0;i<heads.length;i++){if(heads[i].offsetTop<=y)cur=links[i];else break}
+  links.forEach(function(a){a.classList.toggle('active',a===cur)});
+  var h=document.documentElement;
+  document.getElementById('progress').style.width=h.scrollTop/Math.max(1,h.scrollHeight-h.clientHeight)*100+'%';
+  tick=false;
+ }
+ addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(sync)}},{passive:true});sync();
+ var mb=document.getElementById('menubtn');
+ if(localStorage.getItem('aicfd-toc')==='off')document.body.classList.add('collapsed');
+ mb.onclick=function(){
+  if(innerWidth<=950){sidebar.classList.toggle('open');return}
+  localStorage.setItem('aicfd-toc',document.body.classList.toggle('collapsed')?'off':'on');
+ };
+ document.getElementById('topbtn').onclick=function(){scrollTo({top:0,behavior:'smooth'})};
+ document.getElementById('themebtn').onclick=function(){
+  var d=matchMedia('(prefers-color-scheme:dark)').matches;
+  var c=document.documentElement.getAttribute('data-theme')||(d?'dark':'light');
+  document.documentElement.setAttribute('data-theme',c==='dark'?'light':'dark');
+ };
+ addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='\\'){e.preventDefault();mb.onclick()}});
+})();
+</script>
+</body>
+</html>
