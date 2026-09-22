@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>설계 근거</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css">
+<style>
+:root {
+  --bg:#fbfbf9; --fg:#1c1b19; --muted:#6b6862; --line:#e2ded6; --card:#fff;
+  --accent:#9a5b2e; --soft:#f2e7dc; --code:#f5f2ec;
+  --note:#eef3f7; --note-line:#6f93ad; --warn:#fdf1e3; --warn-line:#c07a2c;
+  --sidebar:264px; --maxw:1800px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#16151a; --fg:#e6e3dd; --muted:#9a958c; --line:#2d2b33; --card:#1d1c22;
+  --accent:#e0a06a; --soft:#2a2119; --code:#201f26;
+  --note:#1b232a; --note-line:#5b7e97; --warn:#2a2119; --warn-line:#b8823f;}}
+:root[data-theme=dark]{
+  --bg:#16151a; --fg:#e6e3dd; --muted:#9a958c; --line:#2d2b33; --card:#1d1c22;
+  --accent:#e0a06a; --soft:#2a2119; --code:#201f26;
+  --note:#1b232a; --note-line:#5b7e97; --warn:#2a2119; --warn-line:#b8823f;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1.2rem}
+body{margin:0;background:var(--bg);color:var(--fg);font-size:16px;line-height:1.72;letter-spacing:-.003em;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Pretendard','Noto Sans KR','Apple SD Gothic Neo',sans-serif}
+.layout{display:flex;max-width:var(--maxw);margin:0 auto}
+#sidebar{position:sticky;top:0;flex:0 0 var(--sidebar);width:var(--sidebar);height:100vh;overflow-y:auto;
+  overscroll-behavior:contain;border-right:1px solid var(--line);padding:3rem .75rem 3rem 1rem;background:var(--bg)}
+.brand{font-weight:700;font-size:1rem}
+.brand-sub{color:var(--muted);font-size:.76rem;margin-bottom:.9rem}
+#pagenav{display:flex;flex-wrap:wrap;gap:.25rem;margin-bottom:1rem;padding-bottom:.9rem;border-bottom:1px solid var(--line)}
+#pagenav a{font-size:.74rem;text-decoration:none;color:var(--muted);border:1px solid var(--line);
+  border-radius:99px;padding:.12rem .5rem}
+#pagenav a:hover{color:var(--accent);border-color:var(--accent)}
+#pagenav a.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+#toc{display:flex;flex-direction:column}
+#toc a{color:var(--muted);text-decoration:none;font-size:.81rem;line-height:1.45;padding:.2rem .45rem;
+  border-radius:6px;border-left:2px solid transparent}
+#toc a:hover{color:var(--fg);background:var(--soft)}
+#toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+#toc a.toc-l1{font-weight:650;color:var(--fg);font-size:.85rem;margin-top:.5rem}
+#toc a.toc-l2{padding-left:.9rem}
+#toc a.toc-l3{padding-left:1.6rem;font-size:.77rem}
+main{flex:1 1 auto;min-width:0;padding:1.9rem 1.6rem 5rem}
+main>h1:first-child{margin-top:0}
+h1,h2,h3,h4{line-height:1.3;letter-spacing:-.015em;scroll-margin-top:1.2rem}
+h1{font-size:1.85rem;margin:2.8rem 0 .9rem;padding-bottom:.45rem;border-bottom:2px solid var(--accent)}
+h2{font-size:1.32rem;margin:2.4rem 0 .75rem}
+h3{font-size:1.05rem;margin:1.7rem 0 .5rem}
+.headerlink{color:var(--line);text-decoration:none;margin-left:.35rem;font-weight:400;opacity:0;transition:opacity .12s}
+h1:hover .headerlink,h2:hover .headerlink,h3:hover .headerlink{opacity:1}
+ul,ol{padding-left:1.3rem}li{margin:.2rem 0}
+a{color:var(--accent);text-underline-offset:2px}
+hr{border:0;border-top:1px solid var(--line);margin:2.6rem 0}
+code{font-family:'JetBrains Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:.85em;
+  background:var(--code);padding:.1em .35em;border-radius:4px;border:1px solid var(--line);white-space:nowrap}
+pre{background:var(--code);border:1px solid var(--line);border-radius:9px;padding:.85rem 1rem;
+  overflow-x:auto;line-height:1.55;font-size:.84rem}
+pre code{background:none;border:0;padding:0;font-size:1em;white-space:pre}
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:9px}
+table{border-collapse:collapse;width:100%;font-size:.8rem;background:var(--card)}
+th,td{padding:.4rem .55rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--code);font-weight:650}
+tr:last-child td{border-bottom:0}
+td code,th code{white-space:normal}
+.admonition{margin:1.1rem 0;padding:.65rem .9rem;border-radius:0 8px 8px 0;border-left:3px solid var(--note-line);
+  background:var(--note);font-size:.93rem}
+.admonition-title{font-weight:650;margin:0 0 .25rem;font-size:.85rem;letter-spacing:.02em}
+.admonition>:last-child{margin-bottom:0}
+.admonition.warning{border-left-color:var(--warn-line);background:var(--warn)}
+.admonition.seealso{border-left-color:var(--accent);background:var(--soft)}
+.katex-display{margin:.9rem 0;padding:.65rem .85rem;overflow-x:auto;overflow-y:hidden;background:var(--code);
+  border:1px solid var(--line);border-radius:9px}
+.katex{font-size:1.06em}
+p .katex,td .katex,li .katex{font-size:1.02em}
+.katex-display>.katex{font-size:1.12em}
+#menubtn{position:fixed;top:.5rem;left:.5rem;z-index:40;width:2.15rem;height:2.15rem;border-radius:8px;
+  border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:.95rem;cursor:pointer}
+#menubtn:hover{color:var(--accent);border-color:var(--accent)}
+body.collapsed #sidebar{display:none}
+body.collapsed main{padding-left:3.2rem}
+.controls{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:20}
+.controls button{width:2.5rem;height:2.5rem;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--fg);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.controls button:hover{border-color:var(--accent);color:var(--accent)}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:30}
+@media (max-width:950px){
+  .layout{display:block}
+  #sidebar{position:fixed;z-index:25;left:0;top:0;width:82vw;max-width:320px;transform:translateX(-102%);
+    transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.2)}
+  body.collapsed #sidebar{display:block}
+  #sidebar.open{transform:none}
+  main{padding:1.5rem 1.1rem 5rem 3.2rem}
+  h1{font-size:1.55rem}h2{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<button id="menubtn" title="목차 접기/펼치기 (Ctrl+\)">&#9776;</button>
+<div class="layout">
+<nav id="sidebar">
+  <div class="brand">aicfd</div>
+  <div class="brand-sub">CFD 예측 모델 5종 문서</div>
+  <div id="pagenav"><a class="" href="../index.html">개요</a>
+<a class="" href="../docs/metrics.html">Metric</a>
+<a class="" href="../docs/preprocessing.html">전처리</a>
+<a class="" href="../docs/nondim.html">nondim</a>
+<a class="cur" href="#">설계 근거</a>
+<a class="" href="../docs/runbook.html">운영 절차</a>
+<a class="" href="../docs/troubleshooting.html">장비 이슈</a>
+<a class="" href="../docs/validation.html">실측</a>
+<a class="" href="../docs/history.html">이력</a></div>
+  <div id="toc"><a class="toc-l1" href="#_1" data-target="_1">설계 근거</a>
+<a class="toc-l2" href="#interpolation-guard" data-target="interpolation-guard">보간 안전장치 — 필드별·크기 기준</a>
+<a class="toc-l3" href="#_2" data-target="_2">왜 필드를 묶어 판정하면 안 되는가</a>
+<a class="toc-l3" href="#range-magnitude" data-target="range-magnitude">왜 범위(range)가 아니라 크기(magnitude) 기준인가</a>
+<a class="toc-l3" href="#_3" data-target="_3">효과</a>
+<a class="toc-l3" href="#rbf-units" data-target="rbf-units">왜 격자 단위로 푸는가</a>
+<a class="toc-l2" href="#fluid-zone" data-target="fluid-zone">fluid 영역 정의</a>
+<a class="toc-l3" href="#building-fluid-zone" data-target="building-fluid-zone">building 계열: 단면 래스터가 성립하는 이유</a>
+<a class="toc-l3" href="#indoor-fluid-zone" data-target="indoor-fluid-zone">indoor 계열: 왜 다른 방법이 필요한가</a>
+<a class="toc-l3" href="#double-masking" data-target="double-masking">마스크가 두 번 적용되는 이유</a>
+<a class="toc-l2" href="#wss" data-target="wss">WSS 정규화</a>
+<a class="toc-l3" href="#wss-exponent" data-target="wss-exponent">유속 지수</a>
+<a class="toc-l3" href="#wss-estimator" data-target="wss-estimator">분포를 요약하는 통계</a>
+<a class="toc-l3" href="#wss-rejected" data-target="wss-rejected">길이 scale 과 국소 속도</a>
+<a class="toc-l2" href="#metric" data-target="metric">metric 설계</a>
+<a class="toc-l3" href="#metric-sample" data-target="metric-sample">왜 샘플 단위를 물리적으로 고정하는가</a>
+<a class="toc-l3" href="#metric-rel-l2" data-target="metric-rel-l2">왜 rel_l2% 를 품질 지표로 쓰지 않는가</a>
+<a class="toc-l3" href="#metric-wmape" data-target="metric-wmape">왜 wmape% 는 괜찮은가</a>
+<a class="toc-l3" href="#metric-rejected" data-target="metric-rejected">채택하지 않은 비율 지표</a></div>
+</nav>
+<main><h1 id="_1">설계 근거<a class="headerlink" href="#_1" title="Permanent link">#</a></h1>
+<p>현재 구현이 왜 그 형태이고 어떤 대안이 왜 채택되지 않았는지 정리한 것.</p>
+<hr />
+<h2 id="interpolation-guard">보간 안전장치 — 필드별·크기 기준<a class="headerlink" href="#interpolation-guard" title="Permanent link">#</a></h2>
+<p><strong>사양</strong>: <a href="preprocessing.html#interpolation-guard">전처리 — 보간 안전장치</a></p>
+<h3 id="_2">왜 필드를 묶어 판정하면 안 되는가<a class="headerlink" href="#_2" title="Permanent link">#</a></h3>
+<p>여러 필드를 하나의 결합 노름으로 판정하면 스케일이 큰 필드가 노름을 좌우한다. building 데이터에서는 pressure 가
+그 역할을 해서, velocity 의 경계 overshoot 가 임계값에 한참 못 미쳐 그대로 통과했다.</p>
+<p>RBF 최소자승 해는 원래 <strong>필드별로 독립</strong>이다(여러 필드를 쌓는 것은 GPU 배칭일 뿐이다). 판정만 필드를 묶으면
+해의 구조와 어긋나고, 한 필드에서 이상값이 나왔을 때 나머지 필드까지 함께 되돌리게 된다.</p>
+<h3 id="range-magnitude">왜 범위(range)가 아니라 크기(magnitude) 기준인가<a class="headerlink" href="#range-magnitude" title="Permanent link">#</a></h3>
+<p>스칼라 판정을 이웃값의 <code>[lo - range, hi + range]</code> 로 잡으면 두 방향 모두 실패한다.</p>
+<ul>
+<li>이웃이 균일한 매끄러운 영역에서는 <code>range = hi - lo</code> 가 0 으로 붕괴해 허용 구간이 한 점이 된다.
+  보간값이 전부 최근접값으로 잘려 pressure·k 가 계단 모양이 된다.</li>
+<li>반대로 값에 비해 산포가 작은 영역(예: 이웃이 999~1001, 값이 1000 근처)에서는 구간이 좁아
+  완만한 외삽까지 잘린다.</li>
+</ul>
+<p>크기 기준 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord hangul_fallback">값</span><span class="mord">∣</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span> 는 0 에 고정돼 있어 이웃이 균일해도 구간이 무너지지 않고, 이웃 최댓값이
+클수록 허용 구간도 함께 넓어진다. velocity 는 원래 벡터 크기로 판정하므로 이 문제가 없다.</p>
+<p>이 안전장치는 <strong>촘촘하게 거르지 않도록</strong> 설계했다. 국소 RBF 가 대부분의 점에서 잘 맞는다고 보고, 극단
+스파이크만 걸러내는 것이 목적이다. 자주 작동할 장치가 아니라서 임계값도 이웃 최댓값의 2배로 넉넉하게 정했다.
+pressure 와 temperature 를 구분하지 않고 둘 다 스칼라로만 취급하는 것도 같은 이유다.</p>
+<h3 id="_3">효과<a class="headerlink" href="#_3" title="Permanent link">#</a></h3>
+<p>수정 전후 비교는 <a href="validation.html#overshoot">실측 결과</a> 참고.</p>
+<h3 id="rbf-units">왜 격자 단위로 푸는가<a class="headerlink" href="#rbf-units" title="Permanent link">#</a></h3>
+<p>RBF 계는 좌표를 <strong>격자 단위</strong>(화소 간격 1)로 받아야 한다. 미터 단위로 풀면 계산이 깨진다.</p>
+<p>이유는 이렇다. 미터로 두면 이웃 간격이 0.02 m 정도라, thin-plate spline 커널 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">ln</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span></span></span></span> 의 크기가
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">3</span></span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 가 된다. 반면 같은 계에 들어가는 다항식 블록의 상수 열은 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> 이다. 안장점 계의 두 블록이
+세 자리나 차이 나면 LU 분해의 피벗이 무너진다.</p>
+<p>이때 최소자승 풀이로 우회하면 더 나쁘다 — GPU 최소자승은 full-rank 를 가정하므로 rank 가 부족한 계에서
+경고 없이 의미 없는 값을 돌려준다. 그 값이 그대로 저장되면 물리적으로 불가능한 결과(절대영도 아래 온도 등)가
+데이터에 남는다. 좌표를 격자 단위로 넘기면 두 블록의 스케일이 맞아 일반 선형 풀이가 안정적으로 동작한다.</p>
+<hr />
+<h2 id="fluid-zone">fluid 영역 정의<a class="headerlink" href="#fluid-zone" title="Permanent link">#</a></h2>
+<p><strong>사양</strong>: <a href="preprocessing.html#fluid-zone">전처리 — fluid 영역</a></p>
+<h3 id="building-fluid-zone">building 계열: 단면 래스터가 성립하는 이유<a class="headerlink" href="#building-fluid-zone" title="Permanent link">#</a></h3>
+<p>외부 유동이라 해석 영역이 풍동 상자이고 obj 는 그 안의 장애물이다(obj ⊂ 해석 영역).
+따라서 "solid = obj 내부"가 유체의 여집합과 정확히 일치한다. 출력 격자가 CFD 해석 영역 안에 완전히 들어가므로
+건물 밖의 격자점이 데이터 부족일 일도 없다.</p>
+<p>단면 다각형화는 빈 면(void)까지 돌려주므로 전부 solid 로 칠하면 닫힌 안뜰이 건물로 읽힌다.
+홀짝 광선 판정으로 실체 면만 남긴다. 전체 obj 464개 중 실제로 달라지는 것은 7개뿐이고, 모두 CFD 가 실제로
+mesh 한 안뜰이다. 이 판정으로 fluid 화소가 solid 로 바뀌는 일은 없다. 잘못 solid 로 칠했던 화소를 되살리기만 한다.</p>
+<p>마스크는 형상과 z 좌표에만 의존하고 풍속과 무관해서, 한 형상의 여러 풍속 케이스가 마스크 하나를 공유한다.</p>
+<h3 id="indoor-fluid-zone">indoor 계열: 왜 다른 방법이 필요한가<a class="headerlink" href="#indoor-fluid-zone" title="Permanent link">#</a></h3>
+<p>포함 관계가 반대다. obj 가 <strong>벽 두께를 가진 방 형상</strong>이라 유체를 바깥에서 감싼다(obj ⊃ 해석 영역).
+building 방식을 그대로 쓰면 벽 띠가 CFD 데이터 없는 fluid 로 표시된다.</p>
+<p><strong>그룹별로 래스터화하는 이유.</strong> mesh 전체를 한 번에 자르면, 닫힌 방 단면이 <em>방 내부 전체</em>를
+면 하나로 내놓는다. 그 면을 solid 로 칠하는 순간 높은 z 슬라이스가 통째로 사라진다.</p>
+<p>홀짝 판정을 적용하면 닫힌 단면 문제는 해결되지만, 설비가 벽에 붙어 단면이 고리 없는 열린 폴리라인이 되는
+슬라이스는 그대로 남는다.</p>
+<p>obj 그룹을 따로 자르면 이 문제가 없어진다. 모든 그룹이 단순한 닫힌 입체가 되기 때문이다. 그러고 나서
+면적이 지나치게 큰 면, 즉 방 내부에 해당하는 면만 면적을 기준으로 걸러내면 된다 — 가구는 커야 1.3 m², 방은 12.03 m² 다.</p>
+<p><strong>점군 bounding box 로 한 번 더 자르는 이유.</strong> obj 외곽과 CFD 점군 경계 사이에 5~10 화소 폭의 띠가 생긴다.
+그 띠는 obj 기준으로는 유체지만 CFD 데이터가 없고, RBF 가 그쪽으로 외삽하면 물리적으로 불가능한 값이 나온다.
+방이 직육면체라 외곽 경계가 정확히 bounding box 이므로 직선으로 잘라낼 수 있다.</p>
+<p><strong>검토했지만 채택하지 않은 대안은 이렇다.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>대안</th>
+<th>기각 이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>점군 자체로 fluid 판정 (K 최근접 이웃의 bounding box 안인가)</td>
+<td>임계값이 필요 없고 solid 도 옳게 배제하지만, CFD 절점 간격이 격자보다 촘촘해 벽 인접 화소가 절점 배치에 따라 침식된다. 안티에일리어싱 준위가 급감하고 부분 커버리지 화소가 크게 늘어 평가 이미지에서 톱니 경계로 보인다</td>
+</tr>
+<tr>
+<td>최근접 거리로 자르기</td>
+<td>방 가운데 CFD mesh 가 성겨서 내부의 최근접 거리가 벽 띠와 겹친다. 띠를 없앨 만큼 임계값을 올리면 방 내부에도 구멍이 생긴다</td>
+</tr>
+<tr>
+<td>그리기 전용 마스크를 따로 유지</td>
+<td>풀리지 않은 띠를 유효한 영역처럼 칠하게 된다</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>보간에 쓸 이웃을 고르는 방식.</strong> 유클리드 거리로 가까운 점이 곧 "둘러싼 이웃"은 아니다. 최근접 CFD 점의 약 10% 는
+고체 건너편(책상판, 파티션, 모니터)에 있고, 그쪽 흐름은 물리적으로 끊겨 있다. 이런 점을 한 보간계에 같이 넣으면
+고체를 사이에 두고 끊겨 있어야 할 장이 하나로 이어져 버린다.</p>
+<p>그래서 후보를 넉넉히 뽑은 뒤 선분–mesh 광선 판정으로 가려진 점을 버리고 보이는 점만 쓴다. 배치 풀이가 이웃 개수를
+고정으로 요구하기 때문에, 모자라면 최근접값으로 채운다. 복셀 근사로 대체할 수는 없다. 파티션과 창이 두께 0 인
+면이라 복셀에 잡히지 않는다.</p>
+<h3 id="double-masking">마스크가 두 번 적용되는 이유<a class="headerlink" href="#double-masking" title="Permanent link">#</a></h3>
+<p>indoor 는 마스크가 서로 다른 공간에서 두 번 곱해진다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>공간</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>전처리</td>
+<td>절대 물리값 (m/s, °C)</td>
+<td>형상 내부(RBF 가 의미 없는 값을 외삽하는 곳)를 양자화 범위 밖으로 밀어내지 않게 0 으로 만든다</td>
+</tr>
+<tr>
+<td>Collator</td>
+<td><code>nondim</code> ΔT</td>
+<td>h5 에 존재하지 않는 <strong>pad 영역</strong>을 0 으로 만든다</td>
+</tr>
+</tbody>
+</table></div>
+<p>둘의 목적이 달라서 하나로 합칠 수 없다. 두 공간의 원점이 다르기 때문에(0 °C 대 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">ref</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>)
+경계 화소의 inverse transform 값이 CFD 값도 저장값도 아니게 되는 결과가 따라온다.</p>
+<p>예측과 정답이 같은 경로를 지나므로 metric 은 공정하고 학습과 추론도 일치한다. 영향 범위는 전체 화소의 0.05% 미만이다.
+이중 감쇠를 없애려면 저장 형식이나 마스크 정의를 바꿔야 하고 그러면 정답 자체가 달라져 재학습이 필요하다.</p>
+<p>building 계열에는 두 번째 마스킹이 없다 — pad 가 아니라 창 잘라내기를 쓰고 온도 필드도 없다.</p>
+<hr />
+<h2 id="wss">WSS 정규화<a class="headerlink" href="#wss" title="Permanent link">#</a></h2>
+<p><strong>사양</strong>: <a href="nondim.html#wss">nondim</a></p>
+<h3 id="wss-exponent">유속 지수<a class="headerlink" href="#wss-exponent" title="Permanent link">#</a></h3>
+<p><strong>데이터로 확인한 값.</strong> 같은 형상에서 유속만 바꾼 조합의 면적가중 로그-로그 기울기는 전체 평균 1.43,
+형상별로 1.33~1.58 이다. 동압 기준인 2.0 은 기각되고 층류 영역임이 확인된다.
+1 에 가까운 값이 섞이는 형상도 있다. 그런 곳에는 완전발달 관유동 성분이 함께 있다고 본다.</p>
+<p>면 단위로 보면 0.34~2.42 로 넓게 퍼지지만 이는 별개의 유동 상태가 아니다. 0 근처(이동하는 separation, stagnation line)에서는
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6331em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0269em;">w</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span></span></span></span> 이므로 국소 기울기 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord">/</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 가 발산한다.</p>
+<p>측정값이 있는데도 유도값 3/2 를 쓰는 이유는 두 가지다. 하나는 fold 를 어떻게 나누든 값이 흔들리지 않는다는 것,
+다른 하나는 면적이 작은 삼각형에 끌려가는 회귀를 피할 수 있다는 것이다.</p>
+<p>둘 사이 차이도 크지 않다. <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1.5</span></span></span></span> 와 측정값 1.43 은 유속 2~12 구간의 끝점에서 12% 벌어진다.
+동압 기준이었다면 같은 자리에서 64% 였다.</p>
+<p><strong>합성 지수를 쓰지 않는 이유.</strong> 합성식은 없애 주는 가정보다 새로 들여오는 가정이 더 많다.</p>
+<p>입구 영역 관유동 scale 에서 두 극한을 합성하면 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.888em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3/2</span></span></span></span></span></span></span></span></span></span></span></span> 가 되고, 유효 지수는 1 과 3/2 사이에 놓인다.
+두 극한 자체는 연속체 scale 에서 유도된다. 문제는 <strong>둘을 잇는 보간이 유일하지 않다</strong>는 점이다.</p>
+<p>쓰려고 해도 필요한 값이 없다. 물리 유속과 동점성계수, 국소 수력직경, 유하 방향 원점, inlet speed 분포를 알아야 하는데
+비강에는 전역적으로 정의되는 그런 값이 없다. 수축·굴곡·분기·separation·재부착이 속도 분포 이력을 계속 초기화하고,
+흡기와 호기에서는 방향까지 뒤집힌다.</p>
+<h3 id="wss-estimator">분포를 요약하는 통계<a class="headerlink" href="#wss-estimator" title="Permanent link">#</a></h3>
+<p>변환의 크기 계수는 통계가 아니라 해석 설정값에서 온다 (<a href="nondim.html#wss-reference-stress">nondim — 크기 계수</a>).
+그래도 WSS 분포를 대표값 하나로 줄여야 하는 자리는 남는다 — 형상별 잔여 scale
+(<a href="nondim.html#remark-7">nondim Remark 7</a>) 과 꼬리 통계가 그것이다. 그 자리에는 면적가중 중앙값을 쓴다.
+중앙값 대신 검토한 것들.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>대안</th>
+<th>기각 이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>가중 기하 중앙값 (스칼라)</td>
+<td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.6994em;vertical-align:-0.8944em;"></span><span class="mord"><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-2.2056em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop"><span class="mop"><span class="mord mathrm" style="margin-right:0.0139em;">arg</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathrm">min</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8944em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-symbol small-op" style="margin-right:0.1945em;position:relative;top:-0.0006em;">∫</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∣</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mord">∣</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span></span></span></span> 는 가중 중앙값 그 자체다. 다른 추정자가 아니다</td>
+</tr>
+<tr>
+<td>가중 Hodges–Lehmann</td>
+<td>오염 내성이 약 29.3% 로 50% 에 못 미친다. 쌍 평균 기반이라 비대칭이고 0 이 많은 WSS 분포에서 상단 꼬리를 과대 가중한다</td>
+</tr>
+<tr>
+<td>절단·윈저화 적분</td>
+<td>내성이 절단 비율에 묶이고 그 비율을 정할 근거가 없다(아티팩트 면적의 상한을 모른다). 대칭 절단은 물리적으로 의미 있는 저-WSS 정체 영역과 고-WSS 국소 집중을 함께 없앤다</td>
+</tr>
+<tr>
+<td>기하평균·로그평균</td>
+<td>0 에서 정의되지 않고 상단 오염 내성이 0 이다. 양수부에서는 중앙값과 동치이며, 작은 값을 더해 회피하면 차원 scale 을 주입하고 0 의 위치를 옮긴다</td>
+</tr>
+<tr>
+<td>케이스별 중앙값의 중앙값</td>
+<td>면적 기준 25% 오염에서 무너진다(전체 중앙값은 50%). 추정 대상 자체가 다르다 — "중앙 케이스의 중앙값"이 된다</td>
+</tr>
+</tbody>
+</table></div>
+<p>중앙값은 다음 다섯 가지를 동시에 만족하는 유일한 선택이다. 확률질량의 50% 가 오염돼도 견디고, 따로 정해야 할
+조정 상수가 없고, 면을 더 잘게 나눠도 값이 그대로이고, 0 이 섞여 있어도 정의되고, 대표 벽점이라는 해석이 성립한다. 고전적인 표본 효율 비교는 여기에 적용되지 않는다 — mesh 면은 독립 관측이 아니라
+결정론적 적분 요소다.</p>
+<h3 id="wss-rejected">길이 scale 과 국소 속도<a class="headerlink" href="#wss-rejected" title="Permanent link">#</a></h3>
+<p><strong>형상별 길이 보정 항을 넣지 않는다.</strong> <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0269em;">w</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∝</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.888em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">1/2</span></span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3/2</span></span></span></span></span></span></span></span></span></span></span></span> 이므로, 길이를 보정하려면
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.1767em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0269em;">w</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9267em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">L</span></span></span><span style="top:-2.8867em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1133em;"><span></span></span></span></span></span><span class="mord">/</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3/2</span></span></span></span></span></span></span></span></span></span></span></span> 처럼 곱해야 한다(나누는 것이 아니다).</p>
+<p>그런데 효과가 크지 않다. 10개 형상의 길이 변동계수가 5.5% 라 선형화하면 2.75% 정도다. 게다가 형상 간 차이가
+크기 차이가 아니라 해부학적 차이라서, 애초에 닮음 관계로 묶이지도 않는다. 그래서 길이는 전역 상수로
+크기 계수 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0556em;">γ</span></span></span></span> 에 흡수시킨다. 이것은 <strong>의도적인 근사</strong>이지, WSS 에 길이 scale 이 없다는 말이 아니다.</p>
+<p>형상 간 크기 변동은 길이 축이 아니라 부피/단면적 축에 있다 — 같은 10개 형상의
+cavity 부피는 28.5~60.3 cm³ 로 ×2.1 변한다. 이 축은 flow-rate similarity 항 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.888em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">7/6</span></span></span></span></span></span></span></span></span></span></span></span> 으로 보정한다
+(<a href="nondim.html#wss-volume">nondim — 부피 지수</a>).</p>
+<p><strong>전역 유속 라벨 대신 국소 외부 속도를 쓰지 않는다.</strong> 경계층 이론이 쓰는 것은 국소 외부 속도다.
+전역 라벨로 대신하려면 국소 속도가 라벨의 진폭에만 비례해야 한다. 그런데 Re 에 따라 통로별 유량 배분이나
+separation 위치가 바뀌면 그 전제가 성립하지 않는다.</p>
+<p>그래도 국소 대리값을 쓰지 않는다. 비강에서는 경계와 원점, 방향의 정의가 하나로 정해지지 않고, 벽에서 첫 절점의
+속도는 mesh 해상도를 타기 때문이다. 지금 확보된 정보 안에서는 전역 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span> 가 최선이다.</p>
+<p><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathnormal">s</span><span class="mord">∣</span></span></span></span> 를 쓰는 것이 흡기와 호기의 공간 분포가 같다는 주장은 아니다. 진폭에만 크기를 쓰고,
+방향에 따른 공간 구조 차이는 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span><span style="top:-3.35em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">~</span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span> 안에 남는다.</p>
+<hr />
+<h2 id="metric">metric 설계<a class="headerlink" href="#metric" title="Permanent link">#</a></h2>
+<p><strong>사양</strong>: <a href="metrics.html">Metric</a></p>
+<h3 id="metric-sample">왜 샘플 단위를 물리적으로 고정하는가<a class="headerlink" href="#metric-sample" title="Permanent link">#</a></h3>
+<p>비율로 정의된 지표는 배치 단위로 한 번에 계산할 수 없다. 샘플마다 구한 비율을 평균한 값과, 여러 샘플의
+분자·분모를 먼저 합친 뒤 계산한 비율이 일반적으로 다르기 때문이다.</p>
+<p>집계는 샘플 수로 가중 평균한다. 그런데 배치 안에서 전체를 한 덩어리로 모아 계산하면, 값이 "샘플별 비율의 평균"과
+"전체를 합쳐서 낸 비율" 사이 어딘가에 놓이고 그 위치가 배치 크기에 따라 달라진다. 실제로 배치 1 과 12 사이에
+28% 차이가 났다. 그래서 샘플을 물리적 단위로 고정해 두어야 지표 정의가 흔들리지 않는다.</p>
+<p>이 때문에 <code>compute_submetric</code> 은 마스크 인자를 받지 않고 샘플 하나만 받는다. 호출자가 샘플마다 잘라 부르므로
+마스크 곱셈, 차원 축약 인자, 확장 연산, 수동 채널 보정이 모두 필요 없다.</p>
+<h3 id="metric-rel-l2">왜 <code>rel_l2%</code> 를 품질 지표로 쓰지 않는가<a class="headerlink" href="#metric-rel-l2" title="Permanent link">#</a></h3>
+<p>물리량 모델의 필드는 대부분의 값이 0 근처에 모여 있고 극단값은 몇 개뿐이다. 이런 분포에서 L2 계열 지표는
+그 몇 개에 좌우되고, 분모가 되는 RMS 는 작아서 비율이 크게 나온다. 극단값이 데이터 아티팩트든 실제 물리든 결과는 같다.</p>
+<p>지표와 눈으로 본 품질이 어긋나는 구체적 분해는 <a href="validation.html#error-energy">실측 결과</a> 에 있다.</p>
+<h3 id="metric-wmape">왜 <code>wmape%</code> 는 괜찮은가<a class="headerlink" href="#metric-wmape" title="Permanent link">#</a></h3>
+<p><code>wmape%</code> 의 분모는 샘플 전체 합 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∥</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">∥</span></span></span></span> 이라 개별 격자점이 0 이어도 발산하지 않는다.
+화소별 상대오차 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">mean</span></span><span class="mopen">(</span><span class="mord">∣</span><span class="mord mathnormal">e</span><span class="mord">∣/∣</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">∣</span><span class="mclose">)</span></span></span></span> 와는 다른 지표다. <code>rel_l2%</code> 와 같은 부류이며 L1 이라 극단값에 더 둔감하다.</p>
+<h3 id="metric-rejected">채택하지 않은 비율 지표<a class="headerlink" href="#metric-rejected" title="Permanent link">#</a></h3>
+<p>비율 지표는 무엇으로 나누느냐가 전부다. 아래 둘은 분모를 다른 데서 가져오는데, 이 프로젝트의 필드에서는
+그 분모가 버티지 못한다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>지표</th>
+<th>분모</th>
+<th>쓰지 않는 이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MAPE</td>
+<td>격자점마다 그 점의 정답</td>
+<td>정답이 0 근처인 격자점이 흔해서 그 점 하나가 값을 통째로 끌고 간다. 같은 L1 비율을 쓰되 분모를 샘플 전체 합으로 바꾼 것이 <code>wmape%</code> 이고, 그래서 그쪽만 쓴다</td>
+</tr>
+<tr>
+<td>CV(RMSE)</td>
+<td>정답의 공간평균</td>
+<td>분모가 평균이라, 평균 자체가 뜻을 갖는 필드에서만 읽힌다. gauge pressure 처럼 평균이 0 근처인 필드에서는 분모가 무너지고, velocity 처럼 평균이 유동 조건을 따라 움직이는 필드에서는 같은 크기의 오차가 조건마다 다른 값으로 나온다</td>
+</tr>
+</tbody>
+</table></div>
+<p>정규화가 꼭 필요하면 정답이 아니라 입구 조건에서 오는 고정 외부 scale 을 쓴다
+(<a href="metrics.html#interpretation">Metric — 해석 기준</a>).</p></main>
+</div>
+<div class="controls">
+  <button id="themebtn" title="라이트/다크">&#9681;</button>
+  <button id="topbtn" title="맨 위로">&#8593;</button>
+</div>
+<script>
+(function(){
+ var links=[].slice.call(document.querySelectorAll('#toc a'));
+ var heads=links.map(function(a){return document.getElementById(a.dataset.target)}).filter(Boolean);
+ var sidebar=document.getElementById('sidebar'),tick=false;
+ function sync(){
+  var y=scrollY+90,cur=null;
+  for(var i=0;i<heads.length;i++){if(heads[i].offsetTop<=y)cur=links[i];else break}
+  links.forEach(function(a){a.classList.toggle('active',a===cur)});
+  var h=document.documentElement;
+  document.getElementById('progress').style.width=h.scrollTop/Math.max(1,h.scrollHeight-h.clientHeight)*100+'%';
+  tick=false;
+ }
+ addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(sync)}},{passive:true});sync();
+ var mb=document.getElementById('menubtn');
+ if(localStorage.getItem('aicfd-toc')==='off')document.body.classList.add('collapsed');
+ mb.onclick=function(){
+  if(innerWidth<=950){sidebar.classList.toggle('open');return}
+  localStorage.setItem('aicfd-toc',document.body.classList.toggle('collapsed')?'off':'on');
+ };
+ document.getElementById('topbtn').onclick=function(){scrollTo({top:0,behavior:'smooth'})};
+ document.getElementById('themebtn').onclick=function(){
+  var d=matchMedia('(prefers-color-scheme:dark)').matches;
+  var c=document.documentElement.getAttribute('data-theme')||(d?'dark':'light');
+  document.documentElement.setAttribute('data-theme',c==='dark'?'light':'dark');
+ };
+ addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='\\'){e.preventDefault();mb.onclick()}});
+})();
+</script>
+</body>
+</html>
