@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>실측 결과</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css">
+<style>
+:root {
+  --bg:#fbfbf9; --fg:#1c1b19; --muted:#6b6862; --line:#e2ded6; --card:#fff;
+  --accent:#9a5b2e; --soft:#f2e7dc; --code:#f5f2ec;
+  --note:#eef3f7; --note-line:#6f93ad; --warn:#fdf1e3; --warn-line:#c07a2c;
+  --sidebar:264px; --maxw:1800px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#16151a; --fg:#e6e3dd; --muted:#9a958c; --line:#2d2b33; --card:#1d1c22;
+  --accent:#e0a06a; --soft:#2a2119; --code:#201f26;
+  --note:#1b232a; --note-line:#5b7e97; --warn:#2a2119; --warn-line:#b8823f;}}
+:root[data-theme=dark]{
+  --bg:#16151a; --fg:#e6e3dd; --muted:#9a958c; --line:#2d2b33; --card:#1d1c22;
+  --accent:#e0a06a; --soft:#2a2119; --code:#201f26;
+  --note:#1b232a; --note-line:#5b7e97; --warn:#2a2119; --warn-line:#b8823f;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1.2rem}
+body{margin:0;background:var(--bg);color:var(--fg);font-size:16px;line-height:1.72;letter-spacing:-.003em;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Pretendard','Noto Sans KR','Apple SD Gothic Neo',sans-serif}
+.layout{display:flex;max-width:var(--maxw);margin:0 auto}
+#sidebar{position:sticky;top:0;flex:0 0 var(--sidebar);width:var(--sidebar);height:100vh;overflow-y:auto;
+  overscroll-behavior:contain;border-right:1px solid var(--line);padding:3rem .75rem 3rem 1rem;background:var(--bg)}
+.brand{font-weight:700;font-size:1rem}
+.brand-sub{color:var(--muted);font-size:.76rem;margin-bottom:.9rem}
+#pagenav{display:flex;flex-wrap:wrap;gap:.25rem;margin-bottom:1rem;padding-bottom:.9rem;border-bottom:1px solid var(--line)}
+#pagenav a{font-size:.74rem;text-decoration:none;color:var(--muted);border:1px solid var(--line);
+  border-radius:99px;padding:.12rem .5rem}
+#pagenav a:hover{color:var(--accent);border-color:var(--accent)}
+#pagenav a.cur{background:var(--accent);border-color:var(--accent);color:#fff}
+#toc{display:flex;flex-direction:column}
+#toc a{color:var(--muted);text-decoration:none;font-size:.81rem;line-height:1.45;padding:.2rem .45rem;
+  border-radius:6px;border-left:2px solid transparent}
+#toc a:hover{color:var(--fg);background:var(--soft)}
+#toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+#toc a.toc-l1{font-weight:650;color:var(--fg);font-size:.85rem;margin-top:.5rem}
+#toc a.toc-l2{padding-left:.9rem}
+#toc a.toc-l3{padding-left:1.6rem;font-size:.77rem}
+main{flex:1 1 auto;min-width:0;padding:1.9rem 1.6rem 5rem}
+main>h1:first-child{margin-top:0}
+h1,h2,h3,h4{line-height:1.3;letter-spacing:-.015em;scroll-margin-top:1.2rem}
+h1{font-size:1.85rem;margin:2.8rem 0 .9rem;padding-bottom:.45rem;border-bottom:2px solid var(--accent)}
+h2{font-size:1.32rem;margin:2.4rem 0 .75rem}
+h3{font-size:1.05rem;margin:1.7rem 0 .5rem}
+.headerlink{color:var(--line);text-decoration:none;margin-left:.35rem;font-weight:400;opacity:0;transition:opacity .12s}
+h1:hover .headerlink,h2:hover .headerlink,h3:hover .headerlink{opacity:1}
+ul,ol{padding-left:1.3rem}li{margin:.2rem 0}
+a{color:var(--accent);text-underline-offset:2px}
+hr{border:0;border-top:1px solid var(--line);margin:2.6rem 0}
+code{font-family:'JetBrains Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:.85em;
+  background:var(--code);padding:.1em .35em;border-radius:4px;border:1px solid var(--line);white-space:nowrap}
+pre{background:var(--code);border:1px solid var(--line);border-radius:9px;padding:.85rem 1rem;
+  overflow-x:auto;line-height:1.55;font-size:.84rem}
+pre code{background:none;border:0;padding:0;font-size:1em;white-space:pre}
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:9px}
+table{border-collapse:collapse;width:100%;font-size:.8rem;background:var(--card)}
+th,td{padding:.4rem .55rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--code);font-weight:650}
+tr:last-child td{border-bottom:0}
+td code,th code{white-space:normal}
+.admonition{margin:1.1rem 0;padding:.65rem .9rem;border-radius:0 8px 8px 0;border-left:3px solid var(--note-line);
+  background:var(--note);font-size:.93rem}
+.admonition-title{font-weight:650;margin:0 0 .25rem;font-size:.85rem;letter-spacing:.02em}
+.admonition>:last-child{margin-bottom:0}
+.admonition.warning{border-left-color:var(--warn-line);background:var(--warn)}
+.admonition.seealso{border-left-color:var(--accent);background:var(--soft)}
+.katex-display{margin:.9rem 0;padding:.65rem .85rem;overflow-x:auto;overflow-y:hidden;background:var(--code);
+  border:1px solid var(--line);border-radius:9px}
+.katex{font-size:1.06em}
+p .katex,td .katex,li .katex{font-size:1.02em}
+.katex-display>.katex{font-size:1.12em}
+#menubtn{position:fixed;top:.5rem;left:.5rem;z-index:40;width:2.15rem;height:2.15rem;border-radius:8px;
+  border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:.95rem;cursor:pointer}
+#menubtn:hover{color:var(--accent);border-color:var(--accent)}
+body.collapsed #sidebar{display:none}
+body.collapsed main{padding-left:3.2rem}
+.controls{position:fixed;right:1rem;bottom:1rem;display:flex;flex-direction:column;gap:.45rem;z-index:20}
+.controls button{width:2.5rem;height:2.5rem;border-radius:50%;border:1px solid var(--line);
+  background:var(--card);color:var(--fg);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.controls button:hover{border-color:var(--accent);color:var(--accent)}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:30}
+@media (max-width:950px){
+  .layout{display:block}
+  #sidebar{position:fixed;z-index:25;left:0;top:0;width:82vw;max-width:320px;transform:translateX(-102%);
+    transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.2)}
+  body.collapsed #sidebar{display:block}
+  #sidebar.open{transform:none}
+  main{padding:1.5rem 1.1rem 5rem 3.2rem}
+  h1{font-size:1.55rem}h2{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<button id="menubtn" title="목차 접기/펼치기 (Ctrl+\)">&#9776;</button>
+<div class="layout">
+<nav id="sidebar">
+  <div class="brand">aicfd</div>
+  <div class="brand-sub">CFD 예측 모델 5종 문서</div>
+  <div id="pagenav"><a class="" href="../index.html">개요</a>
+<a class="" href="../docs/metrics.html">Metric</a>
+<a class="" href="../docs/preprocessing.html">전처리</a>
+<a class="" href="../docs/nondim.html">nondim</a>
+<a class="" href="../docs/design-notes.html">설계 근거</a>
+<a class="" href="../docs/runbook.html">운영 절차</a>
+<a class="" href="../docs/troubleshooting.html">장비 이슈</a>
+<a class="cur" href="#">실측</a>
+<a class="" href="../docs/history.html">이력</a></div>
+  <div id="toc"><a class="toc-l1" href="#_1" data-target="_1">실측 결과</a>
+<a class="toc-l2" href="#overshoot" data-target="overshoot">보간 안전장치의 효과</a>
+<a class="toc-l2" href="#error-energy" data-target="error-energy">지표와 시각적 품질의 괴리</a>
+<a class="toc-l2" href="#fold-metrics" data-target="fold-metrics">5-fold 테스트 지표</a>
+<a class="toc-l2" href="#batch-independence" data-target="batch-independence">배치 크기 독립성</a>
+<a class="toc-l2" href="#wss-robustness" data-target="wss-robustness">WSS 극단값 오염 내성</a>
+<a class="toc-l2" href="#wss-exponent" data-target="wss-exponent">WSS 유속 지수 측정</a>
+<a class="toc-l2" href="#mask-aa" data-target="mask-aa">마스크 안티에일리어싱</a>
+<a class="toc-l2" href="#sensor-sensitivity" data-target="sensor-sensitivity">센서 위치 민감도</a></div>
+</nav>
+<main><h1 id="_1">실측 결과<a class="headerlink" href="#_1" title="Permanent link">#</a></h1>
+<p>설계를 정할 때 실제로 재 본 값들을 모아 둔 페이지다. 각 절은 "무엇이 궁금해서 쟀는지 → 숫자 → 그래서 뭘 정했는지"
+순서로 읽으면 된다. 그 결정이 전체 설계에서 어디에 걸리는지는 <a href="design-notes.html">설계 근거</a> 에 있다.</p>
+<h2 id="overshoot">보간 안전장치의 효과<a class="headerlink" href="#overshoot" title="Permanent link">#</a></h2>
+<p>보간이 만드는 overshoot 가 실제로 얼마나 되는지, 안전장치를 넣으면 사라지는지 확인한 것이다.
+aicfd-indoor-physical 데이터 기준이다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>수정 전</th>
+<th>수정 후</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>격자 velocity 크기 최댓값</td>
+<td>30~36 m/s (원본 점군의 8~13배)</td>
+<td>원본 점군 최댓값과 동등</td>
+</tr>
+<tr>
+<td>overshoot 화소 위치</td>
+<td>100% 도메인 경계</td>
+<td>—</td>
+</tr>
+<tr>
+<td>원본 대 p99.9 윈저화 표준편차 차이</td>
+<td>18%</td>
+<td>1%</td>
+</tr>
+</tbody>
+</table></div>
+<p>원본 점군의 velocity 크기 최댓값은 2.3~4.5 m/s 였다. 그런데 격자에서는 30 m/s 를 넘었고, 그 화소가 전부
+도메인 경계에 있었다. 실제 현상이라면 극단값이 경계에만 100% 몰릴 이유가 없으므로, 보간 과정에서 생긴 아티팩트로 판단했다.
+게다가 이 값들이 양자화 범위 경계에서 포화하면서 정규화 표준편차를 18% 나 밀어 올렸고, 그 영향이 L2 계열 지표까지 이어졌다.</p>
+<p>그래서 필드별 안전장치를 넣기로 했다. 넣고 난 뒤 indoor 의 clip 비율은 velocity 0.0008%, temperature 0.0350% 다.</p>
+<h2 id="error-energy">지표와 시각적 품질의 괴리<a class="headerlink" href="#error-energy" title="Permanent link">#</a></h2>
+<p>평가 이미지로는 문제가 없어 보이는데 지표만 나쁘게 나오는 현상을 어디까지 믿어야 하는지 따져 본 것이다.
+aicfd-indoor-physical 회귀 모델, fold 1 테스트 기준이다.</p>
+<p><strong>증상</strong>: 평가 이미지에서는 예측과 정답이 거의 똑같아 보이는데, velocity 크기의 <code>rel_l2%</code> 가
+37%(샘플 평균) / 55%(전체 합산)이고 temperature <code>r2</code> 는 −0.20 이었다.</p>
+<p>원인을 나눠 보니 계산이 틀린 것이 아니라 <strong>세 가지가 겹친 결과</strong>였다.</p>
+<ol>
+<li><strong>데이터 포화</strong> — 당시 velocity 성분의 양자화 범위가 ±12 m/s 였고 급기구 실제 속도가 그보다 커서
+   139개 화소가 경계에 붙어 있었다.</li>
+<li><strong>학습 loss 는 L1</strong> — 급기구가 선형으로만 기여하고 전체 격자점 수로 희석되므로, 모델이 그 스파이크를
+   무시하고 매끄럽게 예측한다. 급기구를 뺀 나머지 영역은 잘 맞춘다.</li>
+<li><strong>지표는 L2 상대</strong> — 급기구를 제곱해서 보고, 분모의 정답 RMS 는 0.37 로 작다. 그 결과 약 140개 화소가
+   지표 값을 거의 다 결정한다.</li>
+</ol>
+<p>오차 에너지의 정답 크기별 분포:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>구간</th>
+<th>화소 비율</th>
+<th>신호 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></th>
+<th>오차 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></th>
+<th>평균 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∥</span><span class="mord mathnormal">e</span><span class="mord">∥</span></span></span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 ~ p50 (정지 영역)</td>
+<td>50%</td>
+<td>2.8%</td>
+<td><strong>0.9%</strong></td>
+<td>0.019</td>
+</tr>
+<tr>
+<td>p50 ~ p90</td>
+<td>40%</td>
+<td>17%</td>
+<td>2.8%</td>
+<td>0.035</td>
+</tr>
+<tr>
+<td>p90 ~ p99</td>
+<td>9%</td>
+<td>28%</td>
+<td>3.5%</td>
+<td>0.083</td>
+</tr>
+<tr>
+<td><strong>p99 ~ max (제트·급기구)</strong></td>
+<td>1%</td>
+<td>50%</td>
+<td><strong>88%</strong></td>
+<td>0.49</td>
+</tr>
+</tbody>
+</table></div>
+<p>표를 보면 오차 에너지의 88% 가 상위 1% 화소에 있다. 실제로 정답이 5 m/s 이상인 화소 201개(전체의 0.02%)만 빼면
+전체 합산 <code>rel_l2%</code> 가 55.4 에서 23.2 로 떨어진다. 샘플별 <code>rel_l2%</code> 는 최소 12 / 중앙 28 / 최대 96 으로 퍼져 있다.</p>
+<p><strong>물리 단위 velocity 크기 분포</strong> (fluid): 평균 0.14~0.26, RMS 0.26~0.44, 중앙값 0.09~0.18,
+p95 0.40~0.74 m/s. 학습 공간 표준편차가 1.011 이므로 급기구를 뺀 나머지 영역은 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> 이 맞다. 다만 급기구 근처의 값이 표준편차의 85배까지 올라간다.</p>
+<p>결론은 이렇다. 이 필드에서 <code>rel_l2%</code> 는 예측 품질을 말해 주는 지표가 아니라 분포의 상단 꼬리를 말해 주는 지표에 가깝다. 그래서 판단은 물리 단위
+<code>mae</code> 로 하고, <code>rel_l2%</code> 는 다른 결과와 숫자를 맞춰 볼 때만 쓴다 (<a href="metrics.html#interpretation">해석 기준</a>).</p>
+<h2 id="fold-metrics">5-fold 테스트 지표<a class="headerlink" href="#fold-metrics" title="Permanent link">#</a></h2>
+<p>aicfd-indoor-physical, 회귀 모델.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>지표</th>
+<th>범위</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>velocity <code>r2</code></td>
+<td>0.53 ~ 0.71</td>
+</tr>
+<tr>
+<td>velocity 크기 <code>r2</code></td>
+<td>0.37 ~ 0.73</td>
+</tr>
+<tr>
+<td>temperature <code>r2</code></td>
+<td>−1.14 ~ 0.74 (요동. 거의 균일한 필드라 분산이 작다)</td>
+</tr>
+<tr>
+<td>velocity 크기 <code>mae</code></td>
+<td>0.029 ~ 0.066 m/s</td>
+</tr>
+<tr>
+<td>temperature <code>mae</code></td>
+<td>0.20 ~ 0.90 °C</td>
+</tr>
+</tbody>
+</table></div>
+<p>학습 loss(정규화 공간 L1)는 약 0.076 이다.</p>
+<h2 id="batch-independence">배치 크기 독립성<a class="headerlink" href="#batch-independence" title="Permanent link">#</a></h2>
+<p>배치를 어떻게 쪼개든 지표가 같은 값이 나오는지 확인한 것이다.
+샘플 단위로 계산하고 샘플 수로 가중 평균하면 분할 방식과 무관해야 한다. 실제로 배치 크기 1·2·3·4·6·12 에서
+6개 지표가 소수점 9자리까지 같았다.</p>
+<p>반대로 배치 전체를 한 덩어리로 모아 계산하면 배치 크기를 따라 값이 움직인다. 같은 데이터인데도 배치 1 에서 2.01,
+배치 12 에서 1.57 로 28% 차이가 났다. 그래서 지표는 샘플 단위로만 계산한다.</p>
+<h2 id="wss-robustness">WSS 극단값 오염 내성<a class="headerlink" href="#wss-robustness" title="Permanent link">#</a></h2>
+<p>WSS 분포를 대표값 하나로 요약할 때 중앙값과 평균·RMS 중 무엇을 믿을 수 있는지 본 것이다.
+상위 값을 일부러 오염시켜 놓고 각 통계가 얼마나 흔들리는지 쟀다. 전체 데이터셋 기준이고 대상은 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0785em;">X</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.138em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0269em;">w</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">/∣</span><span class="mord mathnormal">s</span><span class="mord"><span class="mord">∣</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3/2</span></span></span></span></span></span></span></span></span></span></span></span> 다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>조건</th>
+<th>중앙값</th>
+<th>RMS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>원본</td>
+<td>0.006280</td>
+<td>0.013983</td>
+</tr>
+<tr>
+<td>상위 1개 ×1000</td>
+<td>+0.00%</td>
+<td>+193%</td>
+</tr>
+<tr>
+<td>상위 0.1% ×100</td>
+<td>+0.00%</td>
+<td>+1811%</td>
+</tr>
+</tbody>
+</table></div>
+<p>더 세게 밀어도 마찬가지였다. fold 1 에서 면적 질량의 10% 를 100배로 오염시켜도 중앙값은 그대로였고,
+RMS 는 8113%, 평균은 3646% 움직였다.</p>
+<p>그래서 WSS 분포를 요약할 때는 평균이나 RMS 가 아니라 면적가중 중앙값을 쓴다. 형상별 잔여 scale
+(<a href="nondim.html#remark-7">nondim Remark 7</a>) 과 꼬리 통계가 그 값이다.
+변환의 크기 계수는 통계가 아니라 해석 설정값에서 오므로 (<a href="nondim.html#wss-reference-stress">nondim — 크기 계수</a>)
+이 오염 내성과는 무관하다.</p>
+<h2 id="wss-exponent">WSS 유속 지수 측정<a class="headerlink" href="#wss-exponent" title="Permanent link">#</a></h2>
+<p>WSS 를 유속의 몇 제곱으로 나눠야 하는지 데이터로 확인한 것이다. 같은 형상에서 유속만 바꾼 조합을 모아
+면적가중 로그-로그 기울기를 쟀다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>범위</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>전체 평균</td>
+<td>1.43 (결정계수 약 0.89)</td>
+</tr>
+<tr>
+<td>형상별</td>
+<td>1.33 ~ 1.58</td>
+</tr>
+<tr>
+<td>면 단위</td>
+<td>0.34 ~ 2.42</td>
+</tr>
+</tbody>
+</table></div>
+<p>측정값 1.43 은 Blasius 가 주는 1.5 에 가깝고, 동압 기준인 2.0 은 기각된다. 면 단위 값이 0.34~2.42 로 넓게 퍼진 것은
+0 근처에서 국소 기울기가 발산하기 때문이지 지수가 흔들려서가 아니다. 그래서 변환에는 유도값 3/2 를 그대로 쓴다.</p>
+<h2 id="mask-aa">마스크 안티에일리어싱<a class="headerlink" href="#mask-aa" title="Permanent link">#</a></h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>모델</th>
+<th>마스크 값 종류</th>
+<th>중간값 화소 비율</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aicfd-building-physical</td>
+<td>255</td>
+<td>0.098%</td>
+</tr>
+<tr>
+<td>aicfd-indoor-physical</td>
+<td>67</td>
+<td>0.048%</td>
+</tr>
+</tbody>
+</table></div>
+<p>마스크 경계의 반투명 화소를 fluid 로 볼지 말지가 통계를 바꾸는지 확인했다. 결론부터 말하면
+<code>!= 0</code> 으로 하든 <code>== 255</code> 로 하든 통계가 사실상 같다 (indoor 실측):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th><code>== 255</code></th>
+<th><code>!= 0</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>velocity 표준편차</td>
+<td>0.1727</td>
+<td>0.1726</td>
+</tr>
+<tr>
+<td>velocity p99.9</td>
+<td>1.4819</td>
+<td>1.4816</td>
+</tr>
+<tr>
+<td>temperature 표준편차</td>
+<td>6.3336</td>
+<td>6.3473</td>
+</tr>
+<tr>
+<td>temperature p99.9</td>
+<td>71.10</td>
+<td>71.09</td>
+</tr>
+</tbody>
+</table></div>
+<p>최댓값은 양쪽이 같다. 안티에일리어싱은 값을 0 쪽으로만 당기기 때문에 상단 꼬리를 건드리지 않는다.
+어느 기준을 써도 결과가 같으므로, 판정 기준은 코드가 이미 쓰고 있는 쪽으로 두었다.</p>
+<h2 id="sensor-sensitivity">센서 위치 민감도<a class="headerlink" href="#sensor-sensitivity" title="Permanent link">#</a></h2>
+<p>aicfd-indoor-physical 은 조건 입력이 센서 5점뿐이라, <strong>센서를 몇 cm 잘못 달면 그대로 입력 오차</strong>가 된다.
+그래서 센서를 조금 옮겼을 때 값이 얼마나 달라지는지를 봤다. 표는 각 센서 좌표에서 반경 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span></span></span></span> 안의
+CFD 온도 표준편차 [°C] 이고, 범위는 저부하~고부하 케이스다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>센서</th>
+<th>위치</th>
+<th>r=5 cm</th>
+<th>r=10 cm</th>
+<th>r=20 cm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>대표 책상 앞</td>
+<td>0.00~0.03</td>
+<td>0.00~0.05</td>
+<td>0.00~0.08</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>대표 의자 반대편 벽</td>
+<td>0.02~0.07</td>
+<td>0.05~0.14</td>
+<td>0.11~0.27</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>대표 의자 옆 상단</td>
+<td>0.04~0.52</td>
+<td>0.07~0.89</td>
+<td>0.12~1.49</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>대표 의자 옆</td>
+<td>0.04~1.44</td>
+<td>0.08~2.47</td>
+<td>0.16~3.54</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>대표 의자 뒤</td>
+<td>0.22~1.70</td>
+<td>0.54~3.84</td>
+<td>1.11~6.04</td>
+</tr>
+</tbody>
+</table></div>
+<p>센서 좌표 (해석 좌표계 기준):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>센서</th>
+<th>위치</th>
+<th>(x, y, z) [m]</th>
+<th>GPIO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>대표 책상 앞</td>
+<td>(2.8, 2.8, 1.0)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>대표 의자 옆</td>
+<td>(0.9, 2.8, 1.1)</td>
+<td>17</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>대표 의자 반대편 벽</td>
+<td>(0.8, 0.0, 1.0)</td>
+<td>27</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>대표 의자 옆 상단</td>
+<td>(0.9, 2.8, 1.6)</td>
+<td>22</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>대표 의자 뒤</td>
+<td>(0.1, 2.3, 0.6)</td>
+<td>23</td>
+</tr>
+</tbody>
+</table></div>
+<p>S1 과 S3 은 어디에 두어도 거의 같은 값이 나온다. 문제는 S2 와 S5 다. 둘 다 인체와 책상 위 열기둥 안에 있어
+온도 기울기가 가파르고, 고부하 조건에서는 센서가 5 cm 어긋나면 온도가 약 1.5 °C 달라진다.</p>
+<p>그래서 센서 위치는 2 cm 정밀도로 실측해서 기록한다. 그만큼 고정하기 어려운 현장이라면, 학습할 때
+센서 위치를 조금씩 흔드는 증강으로 대응하는 편이 낫다.</p>
+<p>센서 좌표를 해석 좌표계에 그대로 써도 되는지도 확인했다. 가구 기준점과 마스크의 높이 분포로 맞춰 보니
+8가지 후보 중 항등 변환이 가장 잘 맞았고(기준점 평균거리 0.57 m, 차점 1.07 m), 그 결과 S5 가 창측 낮은 블록
+상단보다 1 cm 위에 놓인다. 별도 변환 없이 해석 좌표를 쓴다.</p></main>
+</div>
+<div class="controls">
+  <button id="themebtn" title="라이트/다크">&#9681;</button>
+  <button id="topbtn" title="맨 위로">&#8593;</button>
+</div>
+<script>
+(function(){
+ var links=[].slice.call(document.querySelectorAll('#toc a'));
+ var heads=links.map(function(a){return document.getElementById(a.dataset.target)}).filter(Boolean);
+ var sidebar=document.getElementById('sidebar'),tick=false;
+ function sync(){
+  var y=scrollY+90,cur=null;
+  for(var i=0;i<heads.length;i++){if(heads[i].offsetTop<=y)cur=links[i];else break}
+  links.forEach(function(a){a.classList.toggle('active',a===cur)});
+  var h=document.documentElement;
+  document.getElementById('progress').style.width=h.scrollTop/Math.max(1,h.scrollHeight-h.clientHeight)*100+'%';
+  tick=false;
+ }
+ addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(sync)}},{passive:true});sync();
+ var mb=document.getElementById('menubtn');
+ if(localStorage.getItem('aicfd-toc')==='off')document.body.classList.add('collapsed');
+ mb.onclick=function(){
+  if(innerWidth<=950){sidebar.classList.toggle('open');return}
+  localStorage.setItem('aicfd-toc',document.body.classList.toggle('collapsed')?'off':'on');
+ };
+ document.getElementById('topbtn').onclick=function(){scrollTo({top:0,behavior:'smooth'})};
+ document.getElementById('themebtn').onclick=function(){
+  var d=matchMedia('(prefers-color-scheme:dark)').matches;
+  var c=document.documentElement.getAttribute('data-theme')||(d?'dark':'light');
+  document.documentElement.setAttribute('data-theme',c==='dark'?'light':'dark');
+ };
+ addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='\\'){e.preventDefault();mb.onclick()}});
+})();
+</script>
+</body>
+</html>
