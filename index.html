@@ -133,11 +133,11 @@ body.collapsed main{padding-left:3.2rem}
 <a class="toc-l2" href="#repo-deltas" data-target="repo-deltas">모델별 차이</a>
 <a class="toc-l3" href="#io-spec" data-target="io-spec">입출력 사양</a>
 <a class="toc-l3" href="#depth-path" data-target="depth-path">깊이 경로 (3D)</a>
-<a class="toc-l3" href="#aicfd-grid-physical-building" data-target="aicfd-grid-physical-building">aicfd-grid-physical-building</a>
-<a class="toc-l3" href="#aicfd-grid-physical-indoor" data-target="aicfd-grid-physical-indoor">aicfd-grid-physical-indoor</a>
-<a class="toc-l3" href="#aicfd-grid-rgb-building" data-target="aicfd-grid-rgb-building">aicfd-grid-rgb-building</a>
-<a class="toc-l3" href="#aicfd-grid-rgb-nasal" data-target="aicfd-grid-rgb-nasal">aicfd-grid-rgb-nasal</a>
-<a class="toc-l3" href="#aicfd-mesh-physical-nasal" data-target="aicfd-mesh-physical-nasal">aicfd-mesh-physical-nasal</a>
+<a class="toc-l3" href="#aicfd-grid-building-physical" data-target="aicfd-grid-building-physical">aicfd-grid-building-physical</a>
+<a class="toc-l3" href="#aicfd-grid-indoor-physical" data-target="aicfd-grid-indoor-physical">aicfd-grid-indoor-physical</a>
+<a class="toc-l3" href="#aicfd-grid-building-rgb" data-target="aicfd-grid-building-rgb">aicfd-grid-building-rgb</a>
+<a class="toc-l3" href="#aicfd-grid-nasal-rgb" data-target="aicfd-grid-nasal-rgb">aicfd-grid-nasal-rgb</a>
+<a class="toc-l3" href="#aicfd-mesh-nasal-physical" data-target="aicfd-mesh-nasal-physical">aicfd-mesh-nasal-physical</a>
 <a class="toc-l2" href="#file-map" data-target="file-map">파일 지도</a></div>
 </nav>
 <main><h1 id="aicfd">aicfd<a class="headerlink" href="#aicfd" title="Permanent link">#</a></h1>
@@ -192,16 +192,19 @@ body.collapsed main{padding-left:3.2rem}
 <h2 id="glossary">용어<a class="headerlink" href="#glossary" title="Permanent link">#</a></h2>
 <p>문서 전체가 아래 표기를 따른다. <strong>코드 식별자는 등폭체</strong>(<code>nondim</code>), 개념어는 일반 서체다.</p>
 <h3 id="_2">모델 이름<a class="headerlink" href="#_2" title="Permanent link">#</a></h3>
-<p>repo 이름을 그대로 쓰고 줄이지 않는다. 이름은 <code>aicfd-&lt;표현&gt;-&lt;target&gt;-&lt;대상&gt;</code> 순서다.
-세 자리 중 하나라도 빼면 이름이 겹친다. 비강을 다루는 repo 가 <code>aicfd-grid-rgb-nasal</code> 과
-<code>aicfd-mesh-physical-nasal</code> 둘이라서, 대상만으로는 어느 쪽인지 알 수 없다.</p>
+<p>repo 이름을 그대로 쓰고 줄이지 않는다. 이름은 <code>aicfd-&lt;표현&gt;-&lt;대상&gt;-&lt;target&gt;</code> 순서다.
+세 자리 중 하나라도 빼면 이름이 겹친다. 비강을 다루는 repo 가 <code>aicfd-grid-nasal-rgb</code> 과
+<code>aicfd-mesh-nasal-physical</code> 둘이라서, 대상만으로는 어느 쪽인지 알 수 없다.</p>
+<p>대상이 target 보다 앞에 온다. 그래서 이름순으로 늘어놓으면 같은 대상을 다루는 repo 가 붙어 나온다.
+<code>aicfd-grid-building-physical</code> 바로 다음이 <code>aicfd-grid-building-rgb</code> 이고, 그 뒤에
+<code>aicfd-grid-indoor-physical</code> 이 온다.</p>
 <ul>
 <li>첫째 자리는 표현이다. <code>grid</code> 는 유동 해석 결과의 <strong>체적 단면</strong>을 격자로 예측한다.
   <code>mesh</code> 는 유한요소 해석 결과의 <strong>벽면 flux 장</strong>을 표면 mesh 위에서 예측한다. WSS 는 그중 첫 필드이고,
   수증기 질량 flux 와 벽면 열 flux 가 추가될 예정이다.</li>
-<li>둘째 자리는 target 이다. <code>physical</code> 은 물리량이고, <code>rgb</code> 는 렌더 이미지다.</li>
-<li>셋째 자리는 대상이다. <code>building</code> 은 건물 외부 유동, <code>indoor</code> 는 사무실 1개 실내,
+<li>둘째 자리는 대상이다. <code>building</code> 은 건물 외부 유동, <code>indoor</code> 는 사무실 1개 실내,
   <code>nasal</code> 은 비강이다.</li>
+<li>셋째 자리는 target 이다. <code>physical</code> 은 물리량이고, <code>rgb</code> 는 렌더 이미지다.</li>
 </ul>
 <div class="tw"><table>
 <thead>
@@ -213,27 +216,27 @@ body.collapsed main{padding-left:3.2rem}
 </thead>
 <tbody>
 <tr>
-<td><code>aicfd-grid-physical-building</code></td>
+<td><code>aicfd-grid-building-physical</code></td>
 <td>건물 외부 유동</td>
 <td>물리량 단면</td>
 </tr>
 <tr>
-<td><code>aicfd-grid-physical-indoor</code></td>
+<td><code>aicfd-grid-indoor-physical</code></td>
 <td>사무실 1개 실내</td>
 <td>물리량 단면</td>
 </tr>
 <tr>
-<td><code>aicfd-grid-rgb-building</code></td>
+<td><code>aicfd-grid-building-rgb</code></td>
 <td>건물 외부 유동</td>
 <td>렌더 이미지 단면</td>
 </tr>
 <tr>
-<td><code>aicfd-grid-rgb-nasal</code></td>
+<td><code>aicfd-grid-nasal-rgb</code></td>
 <td>비강 유동</td>
 <td>렌더 이미지 단면</td>
 </tr>
 <tr>
-<td><code>aicfd-mesh-physical-nasal</code></td>
+<td><code>aicfd-mesh-nasal-physical</code></td>
 <td>비강 표면</td>
 <td>vertex 별 표면 flux (현재 WSS)</td>
 </tr>
@@ -254,34 +257,34 @@ body.collapsed main{padding-left:3.2rem}
 <td>표현</td>
 <td><strong>grid</strong></td>
 <td>필드를 정규 격자 이미지 <code>(b,c,h,w)</code> 로 다룬다</td>
-<td>aicfd-grid-physical-building, aicfd-grid-physical-indoor, aicfd-grid-rgb-building, aicfd-grid-rgb-nasal</td>
+<td>aicfd-grid-building-physical, aicfd-grid-indoor-physical, aicfd-grid-building-rgb, aicfd-grid-nasal-rgb</td>
 </tr>
 <tr>
 <td></td>
 <td><strong>mesh</strong></td>
 <td>삼각형 표면 mesh 의 vertex 위에서 직접 다룬다</td>
-<td>aicfd-mesh-physical-nasal</td>
+<td>aicfd-mesh-nasal-physical</td>
 </tr>
 <tr>
 <td>target</td>
 <td><strong>물리량</strong></td>
 <td>예측 대상이 실제 물리 단위 값(m/s, Pa, °C, WSS)</td>
-<td>aicfd-grid-physical-building, aicfd-grid-physical-indoor, aicfd-mesh-physical-nasal</td>
+<td>aicfd-grid-building-physical, aicfd-grid-indoor-physical, aicfd-mesh-nasal-physical</td>
 </tr>
 <tr>
 <td></td>
 <td><strong>렌더 이미지</strong></td>
 <td>예측 대상이 이미 색으로 렌더된 이미지 바이트</td>
-<td>aicfd-grid-rgb-building, aicfd-grid-rgb-nasal</td>
+<td>aicfd-grid-building-rgb, aicfd-grid-nasal-rgb</td>
 </tr>
 </tbody>
 </table></div>
-<p>두 축의 교집합을 부를 때는 <strong>물리량-grid</strong>(aicfd-grid-physical-building, aicfd-grid-physical-indoor),
-<strong>물리량-mesh</strong>(aicfd-mesh-physical-nasal), <strong>렌더-grid</strong>(aicfd-grid-rgb-building, aicfd-grid-rgb-nasal) 로 쓴다.</p>
+<p>두 축의 교집합을 부를 때는 <strong>물리량-grid</strong>(aicfd-grid-building-physical, aicfd-grid-indoor-physical),
+<strong>물리량-mesh</strong>(aicfd-mesh-nasal-physical), <strong>렌더-grid</strong>(aicfd-grid-building-rgb, aicfd-grid-nasal-rgb) 로 쓴다.</p>
 <div class="admonition note">
 <p class="admonition-title">'physical' 이라는 단어의 세 가지 쓰임</p>
 <ul>
-<li>repo 이름의 둘째 자리 <code>physical</code></li>
+<li>repo 이름의 셋째 자리 <code>physical</code></li>
 <li>텐서 공간 이름 <code>physical</code> — dequantization 을 거친 물리 단위 텐서 (<a href="#data-spaces">데이터 공간</a>)</li>
 <li>위 표의 target 축 값 "물리량"</li>
 </ul>
@@ -325,11 +328,11 @@ body.collapsed main{padding-left:3.2rem}
 <thead>
 <tr>
 <th></th>
-<th>aicfd-grid-physical-building</th>
-<th>aicfd-grid-physical-indoor</th>
-<th>aicfd-grid-rgb-building</th>
-<th>aicfd-grid-rgb-nasal</th>
-<th>aicfd-mesh-physical-nasal</th>
+<th>aicfd-grid-building-physical</th>
+<th>aicfd-grid-indoor-physical</th>
+<th>aicfd-grid-building-rgb</th>
+<th>aicfd-grid-nasal-rgb</th>
+<th>aicfd-mesh-nasal-physical</th>
 </tr>
 </thead>
 <tbody>
@@ -407,8 +410,8 @@ body.collapsed main{padding-left:3.2rem}
 </tr>
 </tbody>
 </table></div>
-<p><code>aicfd-grid-rgb-building</code> 과 <code>aicfd-grid-rgb-nasal</code> 의 AE/EDM 코드는 뿌리가 같고, <code>aicfd-grid-rgb-nasal</code> 은 거기서 회귀만
-남긴 부분집합이다. <code>aicfd-grid-physical-indoor</code> 은 AE/EDM/3D 코드가 들어 있기는 하지만 실내 데이터에 맞게 배선되어 있지 않다.</p>
+<p><code>aicfd-grid-building-rgb</code> 과 <code>aicfd-grid-nasal-rgb</code> 의 AE/EDM 코드는 뿌리가 같고, <code>aicfd-grid-nasal-rgb</code> 은 거기서 회귀만
+남긴 부분집합이다. <code>aicfd-grid-indoor-physical</code> 은 AE/EDM/3D 코드가 들어 있기는 하지만 실내 데이터에 맞게 배선되어 있지 않다.</p>
 <p>표에 없는 차이는 대부분 도메인에서 온다. 격자 크기, 조건 입력 구성, 데이터 규모 같은 것들이다. 구조를 이해하는 데
 필요한 차이는 위 표와 <a href="#data-spaces">데이터 공간</a>, <a href="#repo-deltas">모델별 차이</a> 에 모아 두었으니
 그쪽을 보면 된다.</p>
@@ -416,7 +419,7 @@ body.collapsed main{padding-left:3.2rem}
 <h2 id="shared-architecture">공통 아키텍처<a class="headerlink" href="#shared-architecture" title="Permanent link">#</a></h2>
 <p>여기서부터는 다섯 모델이 함께 쓰는 골격이다. 각 repo 가 따로 배포되기 때문에 이 골격은 공용 패키지가 아니라
 repo 마다 들어 있는 <strong>복사본</strong>이다. 그래서 한쪽을 고치면 나머지에도 같은 수정을 옮겨야 한다
-(패키지 디렉터리는 <code>aicfd-mesh-physical-nasal</code> 만 <code>aifem/</code> 이고, 나머지는 <code>aicfd/</code> 다).</p>
+(패키지 디렉터리는 <code>aicfd-mesh-nasal-physical</code> 만 <code>aifem/</code> 이고, 나머지는 <code>aicfd/</code> 다).</p>
 <h3 id="_5">학습 루프<a class="headerlink" href="#_5" title="Permanent link">#</a></h3>
 <pre><code>Workspace(fold 단위) → Trainer(epoch 단위) → finalize_fold
 </code></pre>
@@ -446,7 +449,7 @@ repo 마다 들어 있는 <strong>복사본</strong>이다. 그래서 한쪽을 
 </table></div>
 <p>Collator 는 CPU 에서 float32 로만 동작하고, GPU 이동은 <code>to_device</code> 가 일괄 처리한다.
 Dataset 변종은 단일 슬라이스(<code>DatasetImage</code>), 깊이 윈도우(<code>DatasetDepthSeq</code>), 케이스 전체(<code>DatasetDepthCase</code>) 세 가지다.</p>
-<p><strong>aicfd-mesh-physical-nasal 은 Collator 가 없다.</strong> mesh 는 vertex 수가 가변이고 희소 연산자를 함께 들고 다녀 하나의 밀집 텐서로
+<p><strong>aicfd-mesh-nasal-physical 은 Collator 가 없다.</strong> mesh 는 vertex 수가 가변이고 희소 연산자를 함께 들고 다녀 하나의 밀집 텐서로
 묶을 수 없다. Dataset 이 기하 연산자 사전계산과 target 정규화까지 마친 샘플 dict 를 내보내고, 배치는
 <code>collate_fn=list</code> 로 만든 파이썬 리스트다.</p>
 <h3 id="_7">모델 기반 클래스<a class="headerlink" href="#_7" title="Permanent link">#</a></h3>
@@ -471,7 +474,7 @@ Dataset 변종은 단일 슬라이스(<code>DatasetImage</code>), 깊이 윈도�
 </tr>
 <tr>
 <td><code>utils/scheduler.py</code>, <code>utils/ema.py</code></td>
-<td>grid 4종은 <code>scheduler</code> 가 동일하고, 그중 aicfd-grid-rgb-nasal 을 뺀 3종은 <code>ema</code> 까지 동일하다. aicfd-mesh-physical-nasal 은 scheduler 를 WarmupConst 로 축약하고, aicfd-grid-rgb-nasal 은 ema 의 <code>eval_index</code> 를 <code>nn.Buffer</code> 로 보관한다</td>
+<td>grid 4종은 <code>scheduler</code> 가 동일하고, 그중 aicfd-grid-nasal-rgb 을 뺀 3종은 <code>ema</code> 까지 동일하다. aicfd-mesh-nasal-physical 은 scheduler 를 WarmupConst 로 축약하고, aicfd-grid-nasal-rgb 은 ema 의 <code>eval_index</code> 를 <code>nn.Buffer</code> 로 보관한다</td>
 </tr>
 <tr>
 <td><code>utils/metric.py</code>, <code>utils/model_helper.py</code>, <code>models/base_model.py</code></td>
@@ -524,13 +527,13 @@ Dataset 변종은 단일 슬라이스(<code>DatasetImage</code>), 깊이 윈도�
 <td><code>edm</code></td>
 <td>확산 학습용 rescale 공간</td>
 <td><code>(b, c, …)</code></td>
-<td>aicfd-grid-physical-building, aicfd-grid-rgb-building</td>
+<td>aicfd-grid-building-physical, aicfd-grid-building-rgb</td>
 </tr>
 <tr>
 <td><code>latent</code> → <code>ldm</code></td>
 <td>AE 인코더 출력과 그 정규화</td>
 <td><code>(b, c_lat, h', w')</code></td>
-<td>aicfd-grid-physical-building, aicfd-grid-rgb-building</td>
+<td>aicfd-grid-building-physical, aicfd-grid-building-rgb</td>
 </tr>
 </tbody>
 </table></div>
@@ -552,22 +555,22 @@ Dataset 변종은 단일 슬라이스(<code>DatasetImage</code>), 깊이 윈도�
 </thead>
 <tbody>
 <tr>
-<td><code>aicfd-grid-rgb-building</code>, <code>aicfd-grid-rgb-nasal</code></td>
+<td><code>aicfd-grid-building-rgb</code>, <code>aicfd-grid-nasal-rgb</code></td>
 <td>고정 상수 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.1901em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">255</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord mathnormal">u</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></td>
 <td>값이 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span></td>
 </tr>
 <tr>
-<td><code>aicfd-grid-physical-building</code></td>
+<td><code>aicfd-grid-building-physical</code></td>
 <td>기준 풍속별 표본 통계</td>
 <td>표준편차 1</td>
 </tr>
 <tr>
-<td><code>aicfd-grid-physical-indoor</code></td>
+<td><code>aicfd-grid-indoor-physical</code></td>
 <td>채널별 전역 통계 + 기준온도 차감</td>
 <td>표준편차 1</td>
 </tr>
 <tr>
-<td><code>aicfd-mesh-physical-nasal</code></td>
+<td><code>aicfd-mesh-nasal-physical</code></td>
 <td>물리 유도 지수 + 해석 설정값에서 온 상수</td>
 <td>면적가중 중앙값 32</td>
 </tr>
@@ -620,11 +623,11 @@ Dataset 변종은 단일 슬라이스(<code>DatasetImage</code>), 깊이 윈도�
 <thead>
 <tr>
 <th></th>
-<th><code>aicfd-grid-physical-building</code></th>
-<th><code>aicfd-grid-physical-indoor</code></th>
-<th><code>aicfd-grid-rgb-building</code></th>
-<th><code>aicfd-grid-rgb-nasal</code></th>
-<th><code>aicfd-mesh-physical-nasal</code></th>
+<th><code>aicfd-grid-building-physical</code></th>
+<th><code>aicfd-grid-indoor-physical</code></th>
+<th><code>aicfd-grid-building-rgb</code></th>
+<th><code>aicfd-grid-nasal-rgb</code></th>
+<th><code>aicfd-mesh-nasal-physical</code></th>
 </tr>
 </thead>
 <tbody>
@@ -669,7 +672,7 @@ Dataset 변종은 단일 슬라이스(<code>DatasetImage</code>), 깊이 윈도�
 <td><strong>조건을 넣는 방식</strong></td>
 <td colspan="1">조건마다 <code>ImgFiLM</code> 하나씩(2개), 각각 기하 입력을 변조한 뒤 <strong>이어붙인다</strong> → 6채널</td>
 <td>조건마다 <code>ImgFiLM</code> 하나씩(6개), 변조 결과를 <strong>더한 뒤</strong> 원본 기하 입력을 이어붙인다 → 6채널</td>
-<td colspan="2">aicfd-grid-physical-building 과 동일 (2개 변조 후 이어붙이기)</td>
+<td colspan="2">aicfd-grid-building-physical 과 동일 (2개 변조 후 이어붙이기)</td>
 <td><code>NasalFiLM</code> 이 조건 3개를 MLP 에 통과시켜 DiffusionNet <strong>block 마다</strong> <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0556em;">γ</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0528em;">β</span><span class="mclose">)</span></span></span></span> 를 만든다. vertex 마다 값이 다르다</td>
 </tr>
 <tr>
@@ -742,7 +745,7 @@ Collator 가 그것들을 <code>truth</code> 로 갈라낸다. 신경망의 <cod
 </table></div>
 <p>그래서 3D 회귀는 조건 생성기가 아니라 <strong>깊이 방향 보간기</strong>다. 학습할 때는 몇 장을 줄지
 (<code>depth_mask</code>) 샘플마다 새로 정하고, 평가할 때는 창을 옮겨 가며 케이스 전체를 복원한다.</p>
-<h3 id="aicfd-grid-physical-building">aicfd-grid-physical-building<a class="headerlink" href="#aicfd-grid-physical-building" title="Permanent link">#</a></h3>
+<h3 id="aicfd-grid-building-physical">aicfd-grid-building-physical<a class="headerlink" href="#aicfd-grid-building-physical" title="Permanent link">#</a></h3>
 <p>가장 많은 모델군을 갖는다. contour 는 공간을 함께 들고 다니는 <code>ContourDict</code> 로 다루고,
 <code>physical ↔ nondim ↔ {edm, ldm}</code> 을 샘플별 계수로 왕복한다.</p>
 <div class="tw"><table>
@@ -790,7 +793,7 @@ Collator 가 그것들을 <code>truth</code> 로 갈라낸다. 신경망의 <cod
 3D 모델은 contour 에 깊이 축을 더한 <code>(b,c,D,h,w)</code> 를 다룬다 — <a href="#depth-path">깊이 경로</a> 참고.</p>
 <p>fluid 영역은 obj 단면을 z 슬라이스마다 래스터화해 만든다. 이 방법이 성립하는 이유는 외부 유동이기 때문이다 —
 해석 영역이 풍동 상자이고 건물이 그 안의 장애물이라 "solid = obj 내부"가 유체의 여집합과 정확히 일치한다.</p>
-<h3 id="aicfd-grid-physical-indoor">aicfd-grid-physical-indoor<a class="headerlink" href="#aicfd-grid-physical-indoor" title="Permanent link">#</a></h3>
+<h3 id="aicfd-grid-indoor-physical">aicfd-grid-indoor-physical<a class="headerlink" href="#aicfd-grid-indoor-physical" title="Permanent link">#</a></h3>
 <p>단일 사무실 형상이라 모델·각도 축이 없다. 예측 필드는 velocity 와 temperature 이며 온도는 섭씨로 저장한다.</p>
 <div class="tw"><table>
 <thead>
@@ -848,16 +851,16 @@ velocity 는 bias 가 0 이고 벽면 값도 0 이라 영향이 없다.</p>
 </div>
 <p>온도 단위는 원본 <code>.ip</code> 만 켈빈이고, 전처리에서 섭씨로 바꾼 뒤로는 저장·metric·출력이 모두 섭씨다.
 <code>nondim</code> 공간은 온도차라서 켈빈과 섭씨가 같다.</p>
-<h3 id="aicfd-grid-rgb-building">aicfd-grid-rgb-building<a class="headerlink" href="#aicfd-grid-rgb-building" title="Permanent link">#</a></h3>
-<p>aicfd-grid-physical-building 과 같은 모델군을 갖되 target 이 렌더 이미지다. 물리 단위 공간이 없고 정규화가 상수이므로
+<h3 id="aicfd-grid-building-rgb">aicfd-grid-building-rgb<a class="headerlink" href="#aicfd-grid-building-rgb" title="Permanent link">#</a></h3>
+<p>aicfd-grid-building-physical 과 같은 모델군을 갖되 target 이 렌더 이미지다. 물리 단위 공간이 없고 정규화가 상수이므로
 <code>ContourDict</code> 도 샘플별 계수도 없다. 정규화 상태를 갖는 것은 EDM/LDM 뿐이고 그 계수는 checkpoint 에 저장된다.</p>
 <span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.9436em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">raw</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">data</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord">−</span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">raw</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathnormal">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">edm</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">u</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span></span>
 <p><code>EDMCollator</code> 의 기본값 <code>scale=2/255, bias=-1</code> 은 추가 정규화가 필요 없는 경로(LDM, 3D 회귀)를 위한 것이라
 결과가 그냥 <code>[-1,1]</code> 이다. 도메인 밖은 흰색(1)으로 채운다.</p>
-<h3 id="aicfd-grid-rgb-nasal">aicfd-grid-rgb-nasal<a class="headerlink" href="#aicfd-grid-rgb-nasal" title="Permanent link">#</a></h3>
-<p>aicfd-grid-rgb-building 에서 회귀 2D·3D 만 남긴 부분집합이다. 확산도 AE 도 없고 정규화 상태 자체가 없다
+<h3 id="aicfd-grid-nasal-rgb">aicfd-grid-nasal-rgb<a class="headerlink" href="#aicfd-grid-nasal-rgb" title="Permanent link">#</a></h3>
+<p>aicfd-grid-building-rgb 에서 회귀 2D·3D 만 남긴 부분집합이다. 확산도 AE 도 없고 정규화 상태 자체가 없다
 (3D 는 <a href="#depth-path">깊이 경로</a>). 가장 작은 grid 모델이라 공통 코드 변경을 먼저 확인해 보기 좋다.</p>
-<h3 id="aicfd-mesh-physical-nasal">aicfd-mesh-physical-nasal<a class="headerlink" href="#aicfd-mesh-physical-nasal" title="Permanent link">#</a></h3>
+<h3 id="aicfd-mesh-nasal-physical">aicfd-mesh-nasal-physical<a class="headerlink" href="#aicfd-mesh-nasal-physical" title="Permanent link">#</a></h3>
 <p>유일한 mesh 모델이다. vertex 수가 가변인 삼각형 표면을 그대로 받아 <strong>vertex 별 스칼라 WSS</strong> 를 예측한다.
 격자도, 화소 공간도, Collator 도, 확산·AE 도 없다.</p>
 <pre><code>h5 (verts/faces, 면 중심 WSS, 면적, 유속, cavity 부피, vertex 별 단면적)
@@ -942,7 +945,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
 <p>기준값의 유속 의존성만 필드별로 다르다 — WSS 의 지수는 <a href="docs/nondim.html#wss-exponent">WSS nondimensionalization</a> 참고.</p>
 <hr />
 <h2 id="file-map">파일 지도<a class="headerlink" href="#file-map" title="Permanent link">#</a></h2>
-<p>grid 4종 공통 경로다. aicfd-mesh-physical-nasal 은 패키지가 <code>aifem/</code> 이고 <code>collator.py</code>·<code>edm_helper.py</code> 가 없다.</p>
+<p>grid 4종 공통 경로다. aicfd-mesh-nasal-physical 은 패키지가 <code>aifem/</code> 이고 <code>collator.py</code>·<code>edm_helper.py</code> 가 없다.</p>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -969,7 +972,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
 </tr>
 <tr>
 <td><code>models/diffusionnet.py</code>, <code>models/modules/backbone.py</code></td>
-<td>DiffusionNet 회귀 (aicfd-mesh-physical-nasal)</td>
+<td>DiffusionNet 회귀 (aicfd-mesh-nasal-physical)</td>
 </tr>
 <tr>
 <td><code>utils/dataset.py</code></td>

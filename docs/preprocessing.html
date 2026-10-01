@@ -157,7 +157,7 @@ body.collapsed main{padding-left:3.2rem}
 </tr>
 </tbody>
 </table></div>
-<p>pixel space 모델(aicfd-grid-rgb-building, aicfd-grid-rgb-nasal)은 이 경로를 타지 않는다. 해석 결과를 이미지로 렌더해서
+<p>pixel space 모델(aicfd-grid-building-rgb, aicfd-grid-nasal-rgb)은 이 경로를 타지 않는다. 해석 결과를 이미지로 렌더해서
 바이트를 그대로 저장하기 때문에 clip 도, 양자화 범위를 정하는 일도 없다.</p>
 <h3 id="interpolation-guard">보간 안전장치<a class="headerlink" href="#interpolation-guard" title="Permanent link">#</a></h3>
 <p>국소 RBF 는 도메인 경계에서 물리적으로 말이 안 되는 overshoot 를 만들 수 있다. 보간 단계가 이걸 직접 잡는데,
@@ -197,7 +197,7 @@ body.collapsed main{padding-left:3.2rem}
 그만큼 정보가 없어진다. 그래도 임계값을 두는 이유는, 그런 값이 몇 개만 있어도 L2 계열 지표와 정규화에
 쓰는 표준편차가 크게 달라지기 때문이다.
 임계값을 어디에 두느냐는 두 모델이 다르다.</p>
-<h4 id="clip-building">aicfd-grid-physical-building — 양자화 범위가 곧 임계값</h4>
+<h4 id="clip-building">aicfd-grid-building-physical — 양자화 범위가 곧 임계값</h4>
 <p>이 모델은 데이터가 커서 uint16 <a href="#minmax">양자화</a> 가 선택 사항이 아니다. 양자화는 저장 범위를
 정해야 하고, 범위를 정하면 그 바깥은 자를 수밖에 없다. 그래서 여기서 clip 은 별도의 정제 단계가 아니라
 양자화의 일부이고, 임계값과 저장 범위가 같은 숫자다.</p>
@@ -205,7 +205,7 @@ body.collapsed main{padding-left:3.2rem}
 pressure 는 −12500 ~ 3500 Pa, k 는 0 ~ 1500 m²/s² 다. 최대 풍속이 44 m/s 이므로 velocity 임계값은 그 3.4배,
 pressure 임계값은 같은 풍속의 동압(1186 Pa)의 열 배쯤 된다. 저장 범위를 넉넉히 잡아 두고
 그 바깥으로 나가는 값만 걸러낸다.</p>
-<h4 id="clip-indoor">aicfd-grid-physical-indoor — 데이터 분포에서 뽑은 임계값</h4>
+<h4 id="clip-indoor">aicfd-grid-indoor-physical — 데이터 분포에서 뽑은 임계값</h4>
 <p>풍속이 조건 입력이 아니므로 <strong>절대값</strong>을 기준으로 자른다. 임계값도 사람이 눈대중으로 정한 숫자가 아니라
 데이터 분포에서 계산한다. 규칙은 두 필드 공통으로 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">99.9</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord hangul_fallback">판정값</span></span><span class="mclose">)</span></span></span></span> 이다. 판정값의 p99.9 를 구한 다음 거기에
 1.6 을 곱한 값을 임계값으로 쓴다. 아래 표의 숫자들은 이 규칙으로 한 번 정해서 코드에 고정해 둔 값이고,
@@ -254,7 +254,7 @@ velocity 는 성분별로 자른다. 벡터 크기를 잘라 버리면 방향까
 </thead>
 <tbody>
 <tr>
-<td>aicfd-grid-physical-indoor</td>
+<td>aicfd-grid-indoor-physical</td>
 <td>velocity</td>
 <td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">2.7</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">2.7</span><span class="mclose">]</span></span></span></span> m/s</td>
 </tr>
@@ -264,7 +264,7 @@ velocity 는 성분별로 자른다. 벡터 크기를 잘라 버리면 방향까
 <td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">95</span><span class="mclose">]</span></span></span></span> °C</td>
 </tr>
 <tr>
-<td>aicfd-grid-physical-building</td>
+<td>aicfd-grid-building-physical</td>
 <td>velocity</td>
 <td><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">150</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">150</span><span class="mclose">]</span></span></span></span> m/s</td>
 </tr>
@@ -283,7 +283,7 @@ velocity 는 성분별로 자른다. 벡터 크기를 잘라 버리면 방향까
 <p>이 범위가 있어야 uint16 저장값을 물리값으로 되돌릴 수 있다. 같은 uint16 값이라도 범위가 다르면 다른
 물리값으로 읽힌다. 그래서 범위는 데이터셋, 그리고 그 데이터로 학습한 checkpoint 와 늘 같이 다녀야 하고, 학습에 쓴 범위는 각 run 의
 얼려둔 설정에 남아 있다.</p>
-<p>aicfd-grid-physical-building 의 범위는 보간 안전장치가 없던 시절 기준이라 실제 분포보다 넉넉하다. 범위를 좁히면
+<p>aicfd-grid-building-physical 의 범위는 보간 안전장치가 없던 시절 기준이라 실제 분포보다 넉넉하다. 범위를 좁히면
 uint16 한 단계가 나타내는 물리값 간격이 작아져서 양자화 오차가 줄어든다. 다만 범위를 바꾸면 재학습까지 따라오므로, 절차는 <a href="runbook.html#building-regen">운영 절차</a> 를 따른다.</p>
 <h3 id="fluid-zone">fluid 영역 정의<a class="headerlink" href="#fluid-zone" title="Permanent link">#</a></h3>
 <p>fluid 영역을 정하는 방식은 모델마다 다르다. 형상과 해석 영역의 포함 관계가 서로 반대라서 그렇다.
@@ -298,12 +298,12 @@ building 은 해석 영역인 상자 안에 건물이 장애물로 들어 있고
 </thead>
 <tbody>
 <tr>
-<td>aicfd-grid-physical-building, aicfd-grid-rgb-building</td>
+<td>aicfd-grid-building-physical, aicfd-grid-building-rgb</td>
 <td><code>domain_mask = 255 − geo_mask</code>, <code>geo_mask</code> 는 z 슬라이스별 obj 단면 래스터</td>
 <td>obj ⊂ 해석 영역 (풍동 상자 안의 장애물)</td>
 </tr>
 <tr>
-<td>aicfd-grid-physical-indoor</td>
+<td>aicfd-grid-indoor-physical</td>
 <td>obj 그룹별 단면 래스터의 여집합 ∩ CFD 점군 bounding box</td>
 <td>obj ⊃ 해석 영역 (벽 두께를 가진 방 형상이 유체를 감싼다)</td>
 </tr>
@@ -322,9 +322,9 @@ metric 의 <code>dom_flag</code> 정의(<code>.bool()</code>)와 같은 기준�
 <p>렌더러가 축정렬 경계를 화소에 딱 맞춰 스냅하기 때문이다. 그래서 형상이 없는 z 는 값이 한 종류뿐이고,
 축정렬 벽만 있는 z 는 0 과 255 두 종류만 나온다. 중간값은 사선이나 곡면이 있는 z 에서만 생긴다.</p>
 <p>경계 화소의 값은 커버리지만큼 감쇠돼 있어 물리값이 아니다. 자세한 결과는
-<a href="../index.html#repo-deltas">모델별 차이 — aicfd-grid-physical-indoor</a> 의 경고를 참고.</p>
+<a href="../index.html#repo-deltas">모델별 차이 — aicfd-grid-indoor-physical</a> 의 경고를 참고.</p>
 <h2 id="mesh">mesh 모델<a class="headerlink" href="#mesh" title="Permanent link">#</a></h2>
-<p>aicfd-mesh-physical-nasal 은 격자화 단계가 없다. 해석 결과의 삼각형 표면 mesh 와 면 중심 WSS 를 그대로 h5 에 담고,
+<p>aicfd-mesh-nasal-physical 은 격자화 단계가 없다. 해석 결과의 삼각형 표면 mesh 와 면 중심 WSS 를 그대로 h5 에 담고,
 전처리가 벽면 mesh 만으로 cavity 부피를 계산해 <code>volume</code> 으로 함께 저장한다(divergence theorem, 경계 루프 캡).</p>
 <p>담기 전에 <strong>좌표가 같은 노드를 합친다</strong>. CGNS 는 표면을 한 덩어리로 내보내면서도 패치 이음매의 노드를
 두 번 적어 두는데(케이스당 1.7% 남짓), 그대로 쓰면 벽면이 위상적으로 여러 조각이 된다. 그러면 Laplacian 이 조각마다
