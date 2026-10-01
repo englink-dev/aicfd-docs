@@ -114,7 +114,7 @@ body.collapsed main{padding-left:3.2rem}
 <a class="" href="../docs/history.html">이력</a></div>
   <div id="toc"><a class="toc-l1" href="#_1" data-target="_1">운영 절차</a>
 <a class="toc-l2" href="#common" data-target="common">공통 주의</a>
-<a class="toc-l2" href="#building-regen" data-target="building-regen">aicfd-building-physical 데이터 재생성</a>
+<a class="toc-l2" href="#building-regen" data-target="building-regen">aicfd-grid-physical-building 데이터 재생성</a>
 <a class="toc-l3" href="#1-fp32" data-target="1-fp32">1. fp32 재생성</a>
 <a class="toc-l3" href="#2-o1" data-target="2-o1">2. O(1) 분포 측정</a>
 <a class="toc-l3" href="#3-clip" data-target="3-clip">3. clip 임계값 결정</a>
@@ -131,7 +131,7 @@ body.collapsed main{padding-left:3.2rem}
 <li><code>outputs/</code> 는 git 무시 대상이라 gitignore 를 따르는 검색 도구에 잡히지 않는다. 얼려둔 설정,
   학습 상태 파일, 결과 csv 를 찾을 때는 일반 <code>grep</code> 이나 파이썬으로 따로 훑어야 한다.</li>
 </ul>
-<h2 id="building-regen">aicfd-building-physical 데이터 재생성<a class="headerlink" href="#building-regen" title="Permanent link">#</a></h2>
+<h2 id="building-regen">aicfd-grid-physical-building 데이터 재생성<a class="headerlink" href="#building-regen" title="Permanent link">#</a></h2>
 <p>양자화 범위를 실제 분포에 맞게 좁히는 작업이다. 현재 범위는 보간 안전장치가 없던 시절 기준이라 넉넉해서,
 범위를 좁히면 uint16 한 단계가 나타내는 물리값 간격이 작아져서 양자화 오차가 줄어든다. 순서를 지키지 않으면
 보간 아티팩트가 남은 분포에서 임계값을 정하게 되므로, 단계를 건너뛰지 않는다.</p>
@@ -177,7 +177,7 @@ building 의 <span class="katex"><span class="katex-html" aria-hidden="true"><sp
 그래서 이 단계에서 정하는 것은 필드별 저장 범위 하나뿐이다. 2 단계에서 본 최소·최대와 quantile 을 놓고,
 실제로 일어난 극단값은 남기고 보간 blowup 만 걸러낼 수 있을 만큼 범위를 넉넉하게 정한다.
 잘려 나가는 화소가 필드당 0.01~0.05% 를 넘으면 임계값 문제가 아니라 분포 문제이므로 2 단계로 돌아간다.</p>
-<p><code>aicfd-indoor-physical</code> 은 같은 자리에서 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">99.9</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span><span class="mord">∣</span><span class="mclose">)</span></span></span></span> 규칙을 쓴다.
+<p><code>aicfd-grid-physical-indoor</code> 은 같은 자리에서 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">99.9</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span><span class="mord">∣</span><span class="mclose">)</span></span></span></span> 규칙을 쓴다.
 데이터가 작아 clip 과 저장 범위를 따로 둘 수 있어서다. building 에 그대로 옮겨 쓰는 숫자가 아니다.</p>
 <h3 id="4">4. 양자화 범위 재산정<a class="headerlink" href="#4" title="Permanent link">#</a></h3>
 <p>3 단계에서 정한 범위를 <code>clipper.py</code> 와 <code>compressor.py</code> 의 <code>MINMAX_DICT</code> 에 함께 넣는다.
