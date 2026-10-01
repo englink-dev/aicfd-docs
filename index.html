@@ -419,7 +419,7 @@ body.collapsed main{padding-left:3.2rem}
 <h2 id="shared-architecture">공통 아키텍처<a class="headerlink" href="#shared-architecture" title="Permanent link">#</a></h2>
 <p>여기서부터는 다섯 모델이 함께 쓰는 골격이다. 각 repo 가 따로 배포되기 때문에 이 골격은 공용 패키지가 아니라
 repo 마다 들어 있는 <strong>복사본</strong>이다. 그래서 한쪽을 고치면 나머지에도 같은 수정을 옮겨야 한다
-(패키지 디렉터리는 <code>aicfd-mesh-nasal-physical</code> 만 <code>aifem/</code> 이고, 나머지는 <code>aicfd/</code> 다).</p>
+(패키지 디렉터리는 다섯 repo 모두 <code>aicfd/</code> 다).</p>
 <h3 id="_5">학습 루프<a class="headerlink" href="#_5" title="Permanent link">#</a></h3>
 <pre><code>Workspace(fold 단위) → Trainer(epoch 단위) → finalize_fold
 </code></pre>
@@ -945,7 +945,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
 <p>기준값의 유속 의존성만 필드별로 다르다 — WSS 의 지수는 <a href="docs/nondim.html#wss-exponent">WSS nondimensionalization</a> 참고.</p>
 <hr />
 <h2 id="file-map">파일 지도<a class="headerlink" href="#file-map" title="Permanent link">#</a></h2>
-<p>grid 4종 공통 경로다. aicfd-mesh-nasal-physical 은 패키지가 <code>aifem/</code> 이고 <code>collator.py</code>·<code>edm_helper.py</code> 가 없다.</p>
+<p>grid 4종 공통 경로다. aicfd-mesh-nasal-physical 은 <code>collator.py</code>·<code>edm_helper.py</code> 가 없다.</p>
 <div class="tw"><table>
 <thead>
 <tr>
